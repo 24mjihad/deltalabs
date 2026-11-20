@@ -1,34 +1,31 @@
 {
   "opening": {
-    "frames": 480,
-    "fps": 16,
-    "duration_seconds": 30,
-    "mask_transform": "stationary",
-    "camera_transform": "stationary",
-    "lighting": "area light orbits the stationary curved mask through 360 degrees",
-    "closure_mean_pixel_error": 0.0,
-    "seam_mean_pixel_error": 0.1610276813271605,
-    "ordinary_frame_step_error": 0.16117814429012345,
-    "edit": {
-      "duration_seconds": 30,
-      "shots": [
-        {
-          "view": "close front",
-          "duration_seconds": 10
-        },
-        {
-          "view": "textile and printed logo macro",
-          "duration_seconds": 10
-        },
-        {
-          "view": "curved shoulder detail",
-          "duration_seconds": 10
-        }
-      ],
-      "transition": "intentional cuts to different framing at 10s, 20s and loop boundary; no same-shot reset",
-      "camera": "fixed within each shot",
-      "mask": "stationary within each shot",
-      "light": "physical orbit across the curved surface"
-    }
+    "duration_seconds": 26,
+    "fps": 24,
+    "shots": [
+      {
+        "view": "stationary close front, slow orbiting light",
+        "duration_seconds": 10
+      },
+      {
+        "view": "slow disassembly and reassembly, front camera arc",
+        "duration_seconds": 8
+      },
+      {
+        "view": "slow cushion separation and reassembly, rear camera arc",
+        "duration_seconds": 8
+      }
+    ],
+    "edit": "cuts between distinct camera angles at assembled poses, including the repeat boundary"
+  },
+  "detail_film": {
+    "duration_seconds": 16,
+    "fps": 24,
+    "source": "two native Blender camera arcs, with layered product disassembly and reassembly"
+  },
+  "interactive": {
+    "model": "actual CAD, baked curved pose",
+    "controls": "bottom feature buttons, drag rotation, icon pause, keyboard",
+    "separation": "layer axis for cover/sensing/light/cushion; radial split for paired speakers, batteries, and fit parts"
   }
 }
