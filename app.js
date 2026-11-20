@@ -1,6 +1,7 @@
 (() => {
  'use strict';
  const config=window.DELTALABS||{},reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(!reduced&&'IntersectionObserver' in window){document.body.classList.add('reveal-ready');const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('revealed');observer.unobserve(e.target);}}),{threshold:.08});document.querySelectorAll('[data-reveal]').forEach(e=>observer.observe(e));}
  const safeUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'?u.href:null;}catch{return null;}};
  const campaign=safeUrl(config.kickstarterUrl)||safeUrl(config.updatesUrl),contact=document.getElementById('contact-dialog');let opener;
  const movies=[...document.querySelectorAll('.cinematic')],visible=new Set();let motionPaused=reduced;

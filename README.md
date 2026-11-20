@@ -27,20 +27,21 @@ Publish this folder as the repository root, push to `main`, and enable **Setting
 
 ## Pages
 
-- `index.html`: full-screen rotating mask, customer benefits, fabric close-up, wake light, launch.
-- `sleep.html`: documentary-style wildlife page, grounded in GENED 1038 themes and original studies.
+- `index.html`: full-screen product film, brief customer benefits, wake light, travel, science, launch.
+- `features.html`: interactive CAD mask with automatic rotation, pointer/touch dragging, keyboard controls, selectable parts, smooth separation and reassembly, and science links.
+- `sleep.html`: visual circadian and sleep guide with expandable research explanations, grounded in GENED 1038 and original studies.
 - `about.html`: the founders and development story.
 - `science.html`: the longer course guide, study sources, and photo credits.
 
-`styles.css` holds shared layouts; `experience.css` handles the new product and wildlife pages. `app.js` handles accessible feature tabs, navigation, dialogs, motion controls, and configurable links. Product footage loads as needed and pauses offscreen, resuming without resetting.
+`styles.css` holds shared layouts; `v4.css` handles the product, guide, team, and explorer. `features.js` uses self-hosted Three.js and `assets/mask.glb`; there is no runtime package CDN. `app.js` handles navigation, dialogs, scroll reveals, motion controls, and configurable links. Product footage pauses offscreen and resumes without resetting. The explorer respects reduced motion and supports arrow keys/Home as well as dragging. Swipe directly on the model to rotate; scroll beside it or through the text to move down the page.
 
 ## Media
 
-The three new product animations are rendered from the existing DeltaLabs Blender model with a woven material. The studio lights remain fixed; the mask rotates through them. The assembly animation makes a complete rotation while opening and reassembling. Each clip is a closed cycle; phase-0/phase-1 image comparisons and seam measurements are in `assets/animation-checks.json`.
+The opening film is rendered from the existing DeltaLabs Blender model with a woven material. The camera and mask remain stationary within each shot while an area light physically orbits the curved surface. The film cuts between a close front view, textile macro, and curved-edge detail. Its wrap is an intentional cut between different framings. Shot and cycle measurements are in `assets/animation-checks.json`. The wake-light image is a new native render of the assembled mask on a dark bedside surface.
 
-The woven texture is a visualization, not a claim about a finalized textile. Videos are silent, loop continuously, and have static posters for reduced-motion visitors. Motion can be paused on the homepage and wildlife page. The original source wordmark and shorthand geometry are retained in white.
+The woven texture is a visualization, not a finalized textile. The film is silent and has a static poster for reduced-motion visitors. Motion can be paused on the homepage. Original rounded wordmark and shorthand artwork retain their white and teal brand colors; interface text is white.
 
-Wildlife and ocean photographs are licensed, with photographer attribution, source links, licenses, and changes documented at `science.html#media-credits` and in `assets/media-credits.json`. The WebP versions retain the source photograph's license. The photos illustrate the species and environments, not the cited experiments. Archivo is loaded from Google Fonts with local Arial/Helvetica fallbacks.
+Nature, wildlife, and NASA photographs have attribution, source links, usage terms, and modifications documented in `science.html` and `assets/media-credits.json`. Photos illustrate the species and environments, not the experiments. Founder portraits come from the supplied pitch deck. Manrope is loaded from Google Fonts with local Arial/Helvetica fallbacks.
 
 The site has no analytics, tracking cookies, payments, signup database, or data collection. Launch and social channels stay unconfigured until confirmed. The copy distinguishes planned features from validated outcomes and keeps the retail price as a target.
 

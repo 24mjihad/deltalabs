@@ -34,5 +34,23 @@
     "license": "Unsplash License",
     "license_url": "https://unsplash.com/license",
     "changes": "Converted to WebP. Displayed with crop and dark overlays."
+  },
+  {
+    "file": "earth-dawn.webp",
+    "title": "The Beginnings of a Sunrise",
+    "source": "https://www.nasa.gov/image-article/the-beginnings-of-a-sunrise/",
+    "author": "NASA/Jasmin Moghbeli",
+    "license": "NASA imagery usage guidelines",
+    "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+    "changes": "Resized and converted to WebP; displayed with dark overlays."
+  },
+  {
+    "file": "forest-dawn.webp",
+    "title": "Misty forest landscape at sunrise with golden light",
+    "source": "https://unsplash.com/photos/sjcSbZKJ7AQ",
+    "author": "Barnabas Davoti",
+    "license": "Unsplash License",
+    "license_url": "https://unsplash.com/license",
+    "changes": "Resized and converted to WebP; displayed with dark overlays."
   }
 ]
