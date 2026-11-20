@@ -24,7 +24,7 @@ function show(key,hash=true){
  if(['sensing','light','audio','power'].includes(key))targets.shell=new THREE.Vector3(0,0,-.19);
  if(key==='sensing')targets.sensing=new THREE.Vector3(0,0,-.075);
  if(key==='light')targets.light=new THREE.Vector3(0,0,-.09);
- if(key==='comfort')targets.comfort=new THREE.Vector3(0,0,.14);
+ if(key==='comfort'){targets.comfort=new THREE.Vector3(0,0,.14);targets.padding=new THREE.Vector3(0,0,.14);}
  if(key==='fit')spreads.fit=.075;
  if(key==='audio')spreads.audio=.10;
  if(key==='power')spreads.power=.09;
@@ -52,15 +52,15 @@ try{
   buckets.forEach((bucket,i)=>{if(!bucket.p.length)return;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(bucket.p,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(bucket.n,3));const mesh=new THREE.Mesh(g,original.material);mesh.userData.side=i===0?-1:1;group.add(mesh);});
   original.parent.add(group);original.parent.remove(original);return group;
  }
- new GLTFLoader().load('./assets/mask.glb?v=5',g=>{
+ new GLTFLoader().load('./assets/mask.glb?v=5.1',g=>{
   model=g.scene;scene.add(model);model.position.y=-.008;
-  const colors={shell:0x202326,frame:0x1a1c1e,comfort:0x141719,fit:0x242729,sensing:0x285141,light:0xb2a78f,audio:0x876947,power:0x373c40};
-  for(const key of Object.keys(colors)){let object=model.getObjectByName(key);if(!object)continue;object.traverse(o=>{if(!o.isMesh)return;o.material=new THREE.MeshStandardMaterial({color:colors[key],roughness:.82,metalness:key==='sensing'?.18:.03,side:THREE.FrontSide});if(['frame','comfort','light'].includes(key)){o.material.polygonOffset=true;o.material.polygonOffsetFactor=key==='light'?-4:key==='comfort'?-1:2;o.material.polygonOffsetUnits=o.material.polygonOffsetFactor;}o.geometry.computeVertexNormals();o.frustumCulled=true;});if(['fit','audio','power'].includes(key))object=splitPair(object);parts[key]=object;targets[key]=new THREE.Vector3(0,0,key==='light'?.0008:0);spreads[key]=0;}
+  const colors={shell:0x202326,frame:0x1a1c1e,padding:0x141719,comfort:0x141719,fit:0x242729,sensing:0x285141,light:0xb2a78f,audio:0x876947,power:0x373c40};
+  for(const key of Object.keys(colors)){let object=model.getObjectByName(key);if(!object)continue;object.traverse(o=>{if(!o.isMesh)return;o.material=new THREE.MeshStandardMaterial({color:colors[key],roughness:.82,metalness:key==='sensing'?.18:.03,side:THREE.FrontSide});if(['frame','comfort','light'].includes(key)){o.material.polygonOffset=true;o.material.polygonOffsetFactor=key==='light'?1:key==='comfort'?0:2;o.material.polygonOffsetUnits=o.material.polygonOffsetFactor;}if(key==='shell'||!o.geometry.attributes.normal)o.geometry.computeVertexNormals();o.frustumCulled=true;});if(['fit','audio','power'].includes(key))object=splitPair(object);parts[key]=object;targets[key]=new THREE.Vector3(0,0,key==='light'?.0008:0);spreads[key]=0;}
   // A low-frequency surface avoids the moire and flicker caused by the old checker weave.
   const cloth=document.createElement('canvas');cloth.width=1024;cloth.height=512;const ctx=cloth.getContext('2d');ctx.fillStyle='#272b2d';ctx.fillRect(0,0,1024,512);const texture=new THREE.CanvasTexture(cloth);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
-  parts.shell?.traverse(o=>{if(!o.isMesh)return;const pos=o.geometry.attributes.position,normal=o.geometry.attributes.normal,uv=new Float32Array(pos.count*2);for(let i=0;i<pos.count;i++){const front=normal.getZ(i)<-.3&&pos.getZ(i)<.02;uv[i*2]=front?.5-pos.getX(i)/.275:0;uv[i*2+1]=front?.5+pos.getY(i)/.12:0;}o.geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));o.material.map=texture;o.material.color.set(0xffffff);o.material.polygonOffset=true;o.material.polygonOffsetFactor=-1;o.material.polygonOffsetUnits=-1;o.material.needsUpdate=true;});
+  parts.shell?.traverse(o=>{if(!o.isMesh)return;const pos=o.geometry.attributes.position,uv=new Float32Array(pos.count*2);for(let i=0;i<pos.count;i++){uv[i*2]=.5-pos.getX(i)/.275;uv[i*2+1]=.5+pos.getY(i)/.12;}o.geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));o.material.map=texture;o.material.color.set(0xffffff);o.material.polygonOffset=true;o.material.polygonOffsetFactor=-1;o.material.polygonOffsetUnits=-1;o.material.needsUpdate=true;});
   const logo=new Image();logo.onload=()=>{ctx.drawImage(logo,395,160,234,132);texture.needsUpdate=true;};logo.src='./assets/wordmark.svg?v=5';
-  for(const key of ['sensing','audio','power','fit'])if(parts[key])parts[key].visible=false;
+  for(const key of ['sensing','audio','power','fit','frame','padding'])if(parts[key])parts[key].visible=false;
   stage.classList.add('model-loaded');status.textContent='';if(descriptions[location.hash.slice(1)])show(location.hash.slice(1),false);
  },undefined,()=>{status.textContent='Use the buttons below to explore each feature';});
  new IntersectionObserver(entries=>{onScreen=entries[0].isIntersecting;}).observe(stage);
@@ -73,7 +73,7 @@ try{
    for(const [key,object] of Object.entries(parts)){
     object.position.lerp(targets[key]||new THREE.Vector3(),amount);
     if(['fit','audio','power'].includes(key))for(const child of object.children){child.position.x=THREE.MathUtils.lerp(child.position.x,(spreads[key]||0)*child.userData.side,amount);}
-    if(['sensing','audio','power','fit'].includes(key))object.visible=selected===key;
+    if(key==='frame')object.visible=selected!==null;else if(key==='padding')object.visible=selected==='comfort';else if(['sensing','audio','power','fit'].includes(key))object.visible=selected===key;
    }
    // A fixed framing for each mode prevents zoom oscillation as the model turns.
    distanceGoal=(selected ? .75 : .42)*Math.max(1,1.25/camera.aspect);
