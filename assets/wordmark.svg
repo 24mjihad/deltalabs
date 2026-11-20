@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="445" height="250" viewBox="0 0 445 250"><title>Delta Labs full wordmark with straight strokes and crisp corners</title><defs><filter id="small-fillets" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="0.85"/><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 16 -7.5"/></filter></defs><g filter="url(#small-fillets)" fill="none" stroke="#FFFFFF" stroke-width="7.5" stroke-linejoin="miter" stroke-miterlimit="8" stroke-linecap="butt">
+<path d="M24 24 V110 H48 C71 110 97 98 97 67 C97 36 73 24 48 24 Z"/>
+<path d="M181 24 H124 V110 H181 M124 67 H176"/>
+<path d="M205 24 V110 H259"/>
+<path d="M257 24 H325 M291 24 V110"/>
+<path d="M67 140 V226 H108"/>
+<path d="M240 140 V226 H270 C292 226 302 217 302 203 C302 188 290 182 270 182 H240 M240 140 H267 C287 140 296 147 296 160 C296 174 285 182 270 182"/>
+<path d="M373 149 C361 140 350 138 340 141 C329 143 324 151 324 160 C324 173 338 177 351 182 C366 187 377 192 377 205 C377 220 365 228 350 228 C337 228 326 224 318 216"/>
+</g><g filter="url(#small-fillets)" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linejoin="miter" stroke-miterlimit="8" stroke-linecap="butt"><path d="M374 25 L324 109 C341 105 352 95 365 99 C382 104 394 119 422 109 Z"/><path d="M128 226 L173 141 L216 226"/></g></svg>

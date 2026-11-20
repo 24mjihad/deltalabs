@@ -27,17 +27,19 @@ Publish this folder as the repository root, push to `main`, and enable **Setting
 
 ## Files
 
-- `index.html`: product, why sleep, wildlife, FAQ, launch, contact.
+- `index.html`: full-screen mask reveal, large product scenes, short science introduction, launch, contact.
 - `about.html`: founders, origin, principles, development status.
 - `science.html`: original summary of GENED 1038 themes, study context, public citations.
 - `styles.css`: desktop/mobile design and reduced-motion behavior.
-- `app.js`: mobile navigation, scroll-driven render changes, reveal effects, film dialog, links.
-- `assets/`: compressed media derived from the team's 4K product animation and an SVG mark redrawn from its end slate.
+- `app.js`: mobile navigation, in-view video playback, content reveals, dialogs, configurable links.
+- `assets/`: compressed product imagery and video, a newly rendered Blender light sweep, and original source logo vectors in monochrome.
 
 ## Media and copy
 
-Product footage comes from `DeltaLabs_Winter_15_4K` in the team's Drive. The opening and product film are cropped to remove baked-in captions. The product film ends before unsupported performance statements in the source. Still renders power the scroll-driven feature tour. The opening video plays once; visitors requesting reduced motion see the still. The SVG mark is a web reconstruction of the video mark and should be replaced with a master logo if one is available.
+The full-screen opening was rendered from the team's existing Blender scene with a moving white spotlight and a soft final reveal. It plays once, has a replay control, and uses a still for reduced-motion visitors. Product scenes and the silent film use the revision 14 product cut. Embedded captions and unvalidated performance slogans were removed. Footage is monochrome and black edges blend into the page.
 
-The site references two externally hosted Google Fonts and includes local font fallbacks. It has no analytics or tracking scripts. Public research links open external sites. The product film is silent and includes a textual description; all feature information is available as text.
+The full wordmark uses the source vector from revision 14; the shorthand uses its original resolved vector, including over-under geometry. Both use a white palette. No logo was approximated or recreated. Archivo is the only externally hosted font, with Arial and Helvetica fallbacks. The website has no analytics, tracking scripts, or data collection.
+
+The long science summary remains on its own page. Product details open in a design dialog. Launch buttons open the configured campaign or updates page; until a URL is supplied, they open an informational dialog. Contact channels remain hidden until configured.
 
 The current copy uses the company source of truth to resolve conflicting pitch drafts. Price is a target, capabilities are in development, and no clinical outcome, superiority, or disease-treatment claims are made. Public contact, social, campaign, and launch dates remain unset until confirmed. Detailed private source notes are intentionally excluded from this repository.
