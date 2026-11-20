@@ -50,7 +50,7 @@ try{
   for(let y=0;y<512;y+=3){ctx.strokeStyle=y%6?'#34383b':'#1d2022';ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(1024,y);ctx.stroke();}for(let x=0;x<1024;x+=3){ctx.fillStyle=x%6?'#ffffff07':'#00000020';ctx.fillRect(x,0,1,512);}
   const clothTexture=new THREE.CanvasTexture(cloth);clothTexture.colorSpace=THREE.SRGBColorSpace;clothTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
   if(parts.shell)parts.shell.traverse(o=>{if(o.isMesh){const pos=o.geometry.attributes.position,uv=new Float32Array(pos.count*2);for(let i=0;i<pos.count;i++){uv[i*2]=.5-pos.getX(i)/.275;uv[i*2+1]=.5+pos.getY(i)/.12;}o.geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));o.material.map=clothTexture;o.material.color.set(0xffffff);o.material.needsUpdate=true;}});
-  const logo=new Image();logo.onload=()=>{ctx.drawImage(logo,395,135,234,132);clothTexture.needsUpdate=true;};logo.src='./assets/wordmark.svg';
+  const logo=new Image();logo.onload=()=>{ctx.drawImage(logo,395,135,234,132);clothTexture.needsUpdate=true;};logo.src='./assets/wordmark.svg?v=4';
   for(const key of ['sensing','audio','power'])if(parts[key])parts[key].visible=false;
   ready=true;stage.classList.add('model-loaded');status.textContent='DRAG TO ROTATE · SELECT A PART TO EXPLORE';if(data[location.hash.slice(1)])select(location.hash.slice(1),false);
  },undefined,()=>{status.textContent='3D view unavailable. Explore every feature using the buttons.';stage.querySelector('.hotspots').hidden=true;});
