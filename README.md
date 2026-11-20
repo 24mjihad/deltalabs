@@ -25,21 +25,23 @@ Use full HTTPS URLs. Adding a Kickstarter URL updates the campaign buttons on al
 
 Publish this folder as the repository root, push to `main`, and enable **Settings → Pages → Deploy from a branch → main / (root)**. `.nojekyll` makes this a plain static deployment. Paths are relative so it works under a project URL or a custom domain.
 
-## Files
+## Pages
 
-- `index.html`: full-screen mask reveal, large product scenes, short science introduction, launch, contact.
-- `about.html`: founders, origin, principles, development status.
-- `science.html`: original summary of GENED 1038 themes, study context, public citations.
-- `styles.css`: desktop/mobile design and reduced-motion behavior.
-- `app.js`: mobile navigation, in-view video playback, content reveals, dialogs, configurable links.
-- `assets/`: compressed product imagery and video, a newly rendered Blender light sweep, and original source logo vectors in monochrome.
+- `index.html`: full-screen rotating mask, customer benefits, fabric close-up, wake light, launch.
+- `sleep.html`: documentary-style wildlife page, grounded in GENED 1038 themes and original studies.
+- `about.html`: the founders and development story.
+- `science.html`: the longer course guide, study sources, and photo credits.
 
-## Media and copy
+`styles.css` holds shared layouts; `experience.css` handles the new product and wildlife pages. `app.js` handles accessible feature tabs, navigation, dialogs, motion controls, and configurable links. Product footage loads as needed and pauses offscreen, resuming without resetting.
 
-The full-screen opening was rendered from the team's existing Blender scene with a moving white spotlight and a soft final reveal. It plays once, has a replay control, and uses a still for reduced-motion visitors. Product scenes and the silent film use the revision 14 product cut. Embedded captions and unvalidated performance slogans were removed. Footage is monochrome and black edges blend into the page.
+## Media
 
-The full wordmark uses the source vector from revision 14; the shorthand uses its original resolved vector, including over-under geometry. Both use a white palette. No logo was approximated or recreated. Archivo is the only externally hosted font, with Arial and Helvetica fallbacks. The website has no analytics, tracking scripts, or data collection.
+The three new product animations are rendered from the existing DeltaLabs Blender model with a woven material. The studio lights remain fixed; the mask rotates through them. The assembly animation makes a complete rotation while opening and reassembling. Each clip is a closed cycle; phase-0/phase-1 image comparisons and seam measurements are in `assets/animation-checks.json`.
 
-The long science summary remains on its own page. Product details open in a design dialog. Launch buttons open the configured campaign or updates page; until a URL is supplied, they open an informational dialog. Contact channels remain hidden until configured.
+The woven texture is a visualization, not a claim about a finalized textile. Videos are silent, loop continuously, and have static posters for reduced-motion visitors. Motion can be paused on the homepage and wildlife page. The original source wordmark and shorthand geometry are retained in white.
 
-The current copy uses the company source of truth to resolve conflicting pitch drafts. Price is a target, capabilities are in development, and no clinical outcome, superiority, or disease-treatment claims are made. Public contact, social, campaign, and launch dates remain unset until confirmed. Detailed private source notes are intentionally excluded from this repository.
+Wildlife and ocean photographs are licensed, with photographer attribution, source links, licenses, and changes documented at `science.html#media-credits` and in `assets/media-credits.json`. The WebP versions retain the source photograph's license. The photos illustrate the species and environments, not the cited experiments. Archivo is loaded from Google Fonts with local Arial/Helvetica fallbacks.
+
+The site has no analytics, tracking cookies, payments, signup database, or data collection. Launch and social channels stay unconfigured until confirmed. The copy distinguishes planned features from validated outcomes and keeps the retail price as a target.
+
+See `DESIGN-NOTES.md` for the reviewed startup references, product hierarchy, and animation decisions.

@@ -1,0 +1,38 @@
+[
+  {
+    "animation": "hero",
+    "frames": 240,
+    "fps": 24,
+    "duration_seconds": 10.0,
+    "closure_mean_pixel_error": 0.0,
+    "seam_mean_pixel_error": 1.6765446566358024,
+    "ordinary_frame_step_error": 1.6744873649691359,
+    "bytes": 1976865,
+    "fixed_lights": true,
+    "periodic_object_transform": true
+  },
+  {
+    "animation": "assembly",
+    "frames": 288,
+    "fps": 24,
+    "duration_seconds": 12.0,
+    "closure_mean_pixel_error": 0.000376318158436214,
+    "seam_mean_pixel_error": 2.2005100630144034,
+    "ordinary_frame_step_error": 2.1967836934156377,
+    "bytes": 3633172,
+    "fixed_lights": true,
+    "periodic_object_transform": true
+  },
+  {
+    "animation": "macro",
+    "frames": 240,
+    "fps": 24,
+    "duration_seconds": 10.0,
+    "closure_mean_pixel_error": 0.0,
+    "seam_mean_pixel_error": 3.6732262731481478,
+    "ordinary_frame_step_error": 3.7035950360082306,
+    "bytes": 2904808,
+    "fixed_lights": true,
+    "periodic_object_transform": true
+  }
+]
