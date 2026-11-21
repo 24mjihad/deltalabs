@@ -8,3 +8,5 @@
 @media(max-width:800px){.tracking{padding-block:4rem}.tracking .signal-plot{height:220px}.material-pair{grid-template-columns:1fr;gap:2rem}.material-pair h2{font-size:clamp(2rem,7vw,3rem)}.model-lab{padding-block:5rem}.network-card{min-height:0}.network-diagram{max-height:none}.app-gallery-controls{margin-top:1rem}}
 
 .mask-status{background:transparent}.mask-status img{width:100%;height:160px;object-fit:contain;filter:none;background:transparent}
+
+.model-stage.show-charging canvas{transition:none;opacity:0}.model-stage.show-charging .charging-scene{opacity:1}

@@ -173,7 +173,7 @@ try{
    }
    for(const material of lightMaterials){material.emissive.set(0xffad58);material.emissiveIntensity=glow*1.8;}sunrise.intensity=glow*.045;
    const width=.28+.39*flat+Math.max(0,(plan?.width||.67)-.67)*openness,depth=.18*(1-flat)+.03*flat+(plan?.depth||0)*openness;
-   const target=Math.max(.42,width/(2*Math.tan(THREE.MathUtils.degToRad(17))*camera.aspect)*1.15+depth*.35);distance=THREE.MathUtils.lerp(distance,target,blend);camera.position.set(0,.10,-distance);camera.lookAt(0,.015,.005);
+   const mobile=camera.aspect<1.2,frameScale=mobile?(active?.6:.72):(active?.9:1);const target=Math.max(.38,(width/(2*Math.tan(THREE.MathUtils.degToRad(17))*camera.aspect)*1.15+depth*.35)*frameScale);distance=THREE.MathUtils.lerp(distance,target,blend);camera.position.set(0,.10,-distance);camera.lookAt(0,.015,.005);renderer.toneMappingExposure=THREE.MathUtils.lerp(renderer.toneMappingExposure,active?1.38:1.12,blend);
   }
   if(phase!=='charging')renderer.render(scene,camera);
  }requestAnimationFrame(frame);
