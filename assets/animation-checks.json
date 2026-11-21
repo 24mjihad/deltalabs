@@ -5,50 +5,59 @@
       {
         "shot": "intro",
         "frames": 96,
-        "fps": 24,
-        "seconds": 4.0
+        "fps": 24
       },
       {
         "shot": "deploy",
         "frames": 288,
-        "fps": 24,
-        "seconds": 12.0
-      },
-      {
-        "shot": "fleet",
-        "frames": 192,
-        "fps": 24,
-        "seconds": 8.0
+        "fps": 24
       },
       {
         "shot": "detail",
         "frames": 192,
-        "fps": 24,
-        "seconds": 8.0
+        "fps": 24
+      },
+      {
+        "shot": "fleet",
+        "frames": 192,
+        "fps": 24
       },
       {
         "shot": "foam",
         "frames": 143,
-        "fps": 24,
-        "seconds": 5.958333333333333
+        "fps": 24
       },
       {
         "shot": "close",
         "frames": 192,
-        "fps": 24,
-        "seconds": 8.0
+        "fps": 24
       },
       {
-        "shot": "magnet",
+        "shot": "charging",
         "frames": 96,
-        "fps": 24,
-        "seconds": 4.0
+        "fps": 24
       }
     ],
-    "style": "one-way flattening and deployment, staggered component lift and tumble, camera cuts, foam close-up, magnetic band closure and seated-magnet glints"
+    "edit": "assembled mask, slow deployment, whole board, staged local flex assembly, whole face cushion, magnetic closure, charging rest"
   },
-  "magnet_motion": "magnets remain in authored bores and follow the same band deformation and closure lap",
-  "fleet_motion": "whole electronic component rigs; conservative bounding-box separation prevents rig collisions",
+  "pcb": {
+    "canonical_substrates": 1,
+    "local_sequence": [
+      "root electrode hinges rise 90 degrees",
+      "electrode tips fold down",
+      "ear flex returns around 10 mm outer padding stand-off",
+      "global body curvature"
+    ],
+    "smt": "rigid components mounted using the same deformation and its local tangent frame; no individual flights, random rotations or collision-push simulation",
+    "native_plating": "all plating uses the same rest coordinates and one canonical deformation",
+    "interactive": "one substrate and peripheral ribbons; simplified trace detail; 180 rigid component mounts"
+  },
+  "surface": {
+    "foam": "fine grey-black porous variation, no stripes or ridges; original cushion silhouette",
+    "foam_relief_m": 5e-05,
+    "fabric": "isotropic fine grain in fixed 3D rest-surface coordinates; logo in undeformed UVs",
+    "logo": "raised above nose while retaining an upper margin"
+  },
   "wake": {
     "seconds": 10,
     "layers_seated_at_seconds": 2.4,
@@ -56,19 +65,15 @@
     "light_starts_at_seconds": 4.2,
     "light_ramp_seconds": 5.8
   },
-  "interactive": {
-    "flat_morph": "authored flattened pose",
-    "change_sequence": [
-      "return selected part in its cleared lane",
-      "reseat the cover",
-      "restore curvature",
-      "brief fully assembled beat",
-      "flatten",
-      "clear the cover",
-      "extract next part"
-    ],
-    "minimum_planned_clearance_m": 0.045,
-    "wake_light": "off until complete reassembly, then a 2.4-second ramp"
+  "charging": {
+    "seconds": 4,
+    "orientation": "logo side down, sides folded upward",
+    "indicator": "smooth cosine pulse, matching value and slope at loop boundary"
   },
-  "controls": "no pause buttons; respects system reduced-motion preference"
+  "signals": {
+    "sampling_hz": 128,
+    "history": "write once per sample; trace vertices use fixed acquisition timestamps",
+    "events": "colored duration bars for K-complexes and spindles, attached to their recorded segments"
+  },
+  "controls": "continuous motion while visible; system reduced-motion preference respected"
 }

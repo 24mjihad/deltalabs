@@ -6,3 +6,4 @@
 @media(max-width:800px) and (min-width:601px){.material-pair{grid-template-columns:1fr 1fr}.material-pair article:last-child{grid-column:1/-1;max-width:600px;justify-self:center;width:100%}}
 @media(max-width:600px){.signal-heading{min-height:100px}.material-pair{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.model-stage canvas,.charging-scene{transition:none}}
+.material-pair video{object-fit:contain}

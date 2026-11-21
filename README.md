@@ -37,11 +37,13 @@ Publish this folder as the repository root, push to `main`, and enable **Setting
 
 ## Media
 
-The opening film uses the supplied DeltaLabs Blender model: a dramatic moving light, slow flattening and deployment, a low PCB component shot, material close-ups, band closure, and seated magnet glints. Cuts join different views rather than reversing assembly immediately. A dimensioned magnet macro uses 2 mm discs and 2.25 mm bores. Porous corrugated foam and woven cloth are visualizations of intended materials. The charging scene shows the flattened mask with its bands folded across it on a large pad.
+The opening film uses the supplied DeltaLabs Blender model: a dramatic moving light, slow flattening and deployment, a whole-board view of staged electrode and ear-flex folding, material close-ups, band closure, and seated magnet glints. Cuts join different views rather than reversing assembly immediately. A dimensioned magnet macro uses 2 mm discs and 2.25 mm bores. Fine grey-black foam and fabric grain are visualizations of intended materials; the original face cushion silhouette is retained. The charging scene places the mask logo-side down on a large pad, with its sides folded upward and a smooth, repeating indicator pulse.
 
 The wake film completes reassembly and bending before slowly raising the diffuser light. The interactive light feature likewise stays dark through reassembly, then ramps its light over 2.4 seconds. Timing and shot details are recorded in `assets/animation-checks.json`.
 
-`signals.js` generates six explicitly simulated brainwave, eye-movement, breathing, and movement traces with irregular noise, brief awakenings, K-complexes, and spindles. Stage bands and event labels travel with the data; excerpts use compressed demonstration timing and are not recordings. The chart and headline occupy separate layout regions.
+`signals.js` generates six explicitly simulated brainwave, eye-movement, breathing, and movement traces with irregular noise, brief awakenings, K-complexes, and spindles. Samples are generated once and drawn at their fixed acquisition timestamps. Historical waveform values remain unchanged as the trace scrolls. Colored duration bars highlight K-complexes and spindles. Stage bands and event labels travel with the data; excerpts use compressed demonstration timing and are not recordings. The chart and headline occupy separate layout regions.
+
+The native films and explorer use a single canonical board. Electrode roots rise before insertion, tips fold after seating, and ear sections return around the padding. The explorer retains 180 rigid surface-mount component mounts; chip locations and orientations follow the board tangent frame without independent flights or random rotations. Detailed native plating is simplified in the browser model. Fabric and foam grain use fixed rest-surface coordinates rather than moving world coordinates.
 
 Original wordmark and shorthand retain their white/teal brand colors and internal over/under crossings. The WebGL model uses authored assembled-to-flat morphs, corrected morph normals, simplified rough materials, and separate frame and cover geometry.
 

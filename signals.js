@@ -71,7 +71,7 @@ if(canvas){
   const x=t=>gutter+(t-start)/windowSeconds*plotWidth,focus=start+windowSeconds*.55;
   const currentIndex=stages.findIndex(s=>s.start<=focus&&s.end>focus),current=stages[currentIndex];
   if(currentIndex!==lastStage){heading.textContent=definitions[current.name].label;heading.dataset.stage=current.name;lastStage=currentIndex;}
-  canvas.dataset.windowStart=start.toFixed(3);canvas.dataset.focusStage=current.name;
+  canvas.dataset.windowStart=start.toFixed(3);canvas.dataset.focusStage=current.name;canvas.dataset.sampleProbe=JSON.stringify({index:Math.floor(start/5)*5*fs,values:data.map(channel=>channel[(Math.floor(start/5)*5*fs)%capacity])});canvas.dataset.sampleAnchor=JSON.stringify({index:Math.floor(focus*fs),values:data.map(channel=>channel[Math.floor(focus*fs)%capacity])});
   ctx.save();ctx.beginPath();ctx.rect(gutter,0,plotWidth,height);ctx.clip();
   const labels=[],visibleEvents=[];
   for(const stage of stages){
@@ -79,14 +79,14 @@ if(canvas){
    ctx.fillStyle=def.color;ctx.globalAlpha=.12;ctx.fillRect(left,0,w,yBottom);ctx.globalAlpha=.72;ctx.fillRect(left,0,w,24);ctx.globalAlpha=1;
    ctx.save();ctx.beginPath();ctx.rect(left+1,0,w-2,24);ctx.clip();ctx.fillStyle='white';ctx.textAlign='left';ctx.font='9px Manrope,Arial';ctx.fillText(def.short,left+6,13);ctx.restore();labels.push({stage:stage.name,x:Number(left.toFixed(1))});
    for(const event of stage.events){
-    if(event.time<start||event.time>endTime)continue;visibleEvents.push(event.type);const ex=x(event.time),ey=event.type==='K-complex'?36:49;ctx.fillStyle='#ffffffcc';ctx.font='8px Manrope,Arial';ctx.textAlign='left';ctx.fillText(event.type,ex+3,ey);ctx.strokeStyle='#ffffff40';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(ex,ey+5);ctx.lineTo(ex,yTop+row*.20);ctx.stroke();
+    if(event.time+event.duration<start||event.time>endTime)continue;visibleEvents.push(event.type);const ex=x(event.time),ey=event.type==='K-complex'?36:49,color=event.type==='K-complex'?'#e97680':'#d6b775',ew=event.duration/windowSeconds*plotWidth;ctx.fillStyle=color;ctx.globalAlpha=.14;ctx.fillRect(ex,yTop,ew,row*2);ctx.globalAlpha=.9;ctx.fillRect(ex,yTop-5,ew,3);ctx.globalAlpha=1;ctx.fillStyle=color;ctx.font='8px Manrope,Arial';ctx.textAlign='left';ctx.fillText(event.type,ex+3,ey);ctx.strokeStyle='#ffffff40';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(ex,ey+5);ctx.lineTo(ex,yTop+row*.20);ctx.stroke();
    }
   }
   canvas.dataset.movingLabels=JSON.stringify(labels);canvas.dataset.events=JSON.stringify(visibleEvents);
   for(let ch=0;ch<6;ch++){
    const baseline=yTop+row*(ch+.5),scale=ch<2?.64:ch<4?.7:.8;ctx.lineWidth=.45;ctx.strokeStyle='#ffffff15';ctx.beginPath();ctx.moveTo(gutter,baseline);ctx.lineTo(right,baseline);ctx.stroke();
    ctx.lineWidth=.85;ctx.strokeStyle=ch<2?'#ffffffed':'#ffffffb8';ctx.beginPath();
-   const steps=Math.ceil(plotWidth*1.6);for(let i=0;i<=steps;i++){const t=start+i/steps*windowSeconds,px=gutter+i/steps*plotWidth,py=baseline+value(t,ch)*scale;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();
+   const first=Math.max(0,Math.floor(start*fs)-1),last=Math.ceil(endTime*fs)+1;for(let index=first;index<=last;index++){const px=x(index/fs),py=baseline+data[ch][index%capacity]*scale;if(index===first)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();
   }
   ctx.strokeStyle='#ffffff50';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x(focus),24);ctx.lineTo(x(focus),yBottom);ctx.stroke();
   ctx.fillStyle='#ffffff70';ctx.font='7px Manrope,Arial';ctx.textAlign='center';ctx.fillText('CURRENT STAGE',x(focus),height-8);

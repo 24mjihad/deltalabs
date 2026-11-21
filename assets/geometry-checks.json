@@ -3,49 +3,78 @@
     {
       "part": "shell",
       "vertices": 42447,
-      "flatten_morph": true
+      "morphs": [
+        "Flatten"
+      ]
     },
     {
       "part": "frame",
       "vertices": 4952,
-      "flatten_morph": true
+      "morphs": [
+        "Flatten"
+      ]
     },
     {
       "part": "padding",
       "vertices": 11998,
-      "flatten_morph": true
+      "morphs": [
+        "Flatten"
+      ]
     },
     {
       "part": "sensing",
-      "vertices": 53366,
-      "flatten_morph": true
+      "vertices": 65620,
+      "morphs": [
+        "Flatten",
+        "EarOpen",
+        "TipsUp",
+        "FlatPCB"
+      ]
     },
     {
       "part": "light",
       "vertices": 4943,
-      "flatten_morph": true
+      "morphs": [
+        "Flatten"
+      ]
     },
     {
       "part": "comfort",
       "vertices": 6963,
-      "flatten_morph": true
+      "morphs": [
+        "Flatten"
+      ]
     },
     {
       "part": "fit",
-      "vertices": 14055,
-      "flatten_morph": true
+      "vertices": 14053,
+      "morphs": [
+        "Flatten"
+      ]
     },
     {
       "part": "audio",
       "vertices": 794,
-      "flatten_morph": true
+      "morphs": [
+        "Flatten"
+      ]
     },
     {
       "part": "power",
       "vertices": 24161,
-      "flatten_morph": true
+      "morphs": [
+        "Flatten"
+      ]
     }
   ],
-  "bytes": 9292244,
-  "morph": "authored assembled-to-flat poses, matched vertex topology; flat positions propagated through reduction"
+  "bytes": 21271800,
+  "canonical_substrates": 1,
+  "rigid_surface_mounts": 180,
+  "fold_order": [
+    "tabs upright",
+    "tips fold down",
+    "ear flex wraps outer padding",
+    "body curvature"
+  ],
+  "source_geometry": "one canonical KiCad set; all legacy bend keys zeroed"
 }

@@ -6,13 +6,13 @@ const copy={
  sensing:{kicker:'BRAINWAVES & EYE MOVEMENTS',title:'Track your sleep stages',text:'EEG and EOG electrodes, breathing, blood oxygen and movement — aiming for greater accuracy than wristbands',anchor:'sleep-pressure'},
  light:{kicker:'SUNRISE LIGHT & SMART WAKE',title:'Wake up less drowsy',text:'Sunrise LEDs and a smart wake window for nights and naps',anchor:'morning-light'},
  audio:{kicker:'BUILT-IN STEREO SPEAKERS',title:'Fall asleep faster',text:'Sound pulses timed to your sleep stage — designed to increase deep sleep intensity and reduce time spent falling asleep',anchor:'sleep-pressure'},
- comfort:{kicker:'SOFT / REMOVABLE / WASHABLE',title:'Make yourself comfortable',text:'Porous, corrugated padding and a removable, washable face cushion',anchor:'daily-life'},
+ comfort:{kicker:'SOFT / REMOVABLE / WASHABLE',title:'Make yourself comfortable',text:'Soft grey-black foam and a removable, washable face cushion',anchor:'daily-life'},
  fit:{kicker:'ADJUSTABLE MAGNETIC STRAP',title:'A comfortable fit',text:'A flexible strap that adjusts to your head and spreads pressure evenly',anchor:'daily-life'},
  power:{kicker:'WIRELESS CHARGING',title:'Fold it down and recharge',text:'Set the folded mask on its charging pad, ready for the next night',anchor:'daily-life'}
 };
 const buttons=[...document.querySelectorAll('[data-part]')],internal=['sensing','audio','power','fit'];
 let model,ready=false,parts={},flatBoxes={},meshes=[],lightMaterials=[],flat=0,active=null,pending=null,phase='idle',phaseTime=0,phaseLength=1,fromFlat=0,closePositions={},closePairs=[],closeOpen=0,plan=null,openness=0,glowAfter=false,glow=0;const pairBoxes=new Map();
-let phaseStarted=performance.now();
+let pcbLocal=1,pcbFrom=1,rigidMounts=[],lastPCB="";let phaseStarted=performance.now();
 let yaw=.25,yawGoal=.25,pitch=0,pitchGoal=0,drag=false,px=0,py=0,inertia=0,lastInput=-10000,onScreen=true;
 const ease=x=>{x=THREE.MathUtils.clamp(x,0,1);return x*x*(3-2*x);};
 const basePosition=key=>new THREE.Vector3(0,0,key==='light'?.0008:0);
@@ -23,17 +23,18 @@ function resetOffsets(){for(const [key,o] of Object.entries(parts)){o.position.c
 function close(){
  stage.classList.remove('show-charging');glowAfter=active==='light';glow=0;closePositions={};closePairs=[];fromFlat=flat;closeOpen=openness;
  for(const [key,o] of Object.entries(parts)){closePositions[key]=o.position.clone();if(o.userData.pairs)for(const child of o.userData.pairs)closePairs.push({child,x:child.position.x});}
- enter('closing',.42);
+ pcbFrom=pcbLocal;enter(active==='sensing'&&pcbLocal<.33803?'pcb-folding':'closing',active==='sensing'&&pcbLocal<.33803?1.5:.70);
 }
 function next(){
  if(pending==='@light'){pending=null;active='light';text(active);view(2.28);enter('illuminating',2.4);return;}
  if(pending===null){active=null;plan=null;flat=0;text(null);enter('idle',1);return;}
  if(pending==='power'){active='power';pending=null;flat=0;resetOffsets();text(active);stage.classList.add('show-charging');enter('charging',1);return;}
- active=null;fromFlat=flat;view(pending==='comfort'?2.20:.86);enter('flattening',.9);
+ active=null;fromFlat=flat;view(pending==='comfort'?2.20:.86);enter('flattening',1.6);
 }
 function request(key){
  if(key!==null&&!copy[key])return;pending=key;buttons.forEach(b=>b.dataset.pending=String(b.dataset.part===key));
  if(!ready)return;
+ if(['pcb-folding','pcb-seated','cover-seating','closing','curving','hold'].includes(phase))return;
  if(['idle','charging','lit','illuminating'].includes(phase)&&flat<.001&&openness<.001){stage.classList.remove('show-charging');glow=0;active=null;next();}else close();
 }
 buttons.forEach(b=>b.addEventListener('click',()=>{history.replaceState(null,'','#'+b.dataset.part);request(b.dataset.part);}));
@@ -63,21 +64,25 @@ function makePlan(key){
  else bounds.union(selectedBox.clone().translate(positions[key]));
  const size=bounds.getSize(new THREE.Vector3());return {key,faces,positions,radials,width:size.x,depth:size.z,gap};
 }
-function open(){active=pending;pending=null;plan=makePlan(active);text(active);buttons.forEach(b=>b.dataset.pending='false');description.setAttribute('aria-busy','false');enter(plan.faces.length?'face':'part',plan.faces.length?.65:1.9);}
+function open(){active=pending;pending=null;plan=makePlan(active);text(active);buttons.forEach(b=>b.dataset.pending='false');description.setAttribute('aria-busy','false');enter(plan.faces.length?'face':'part',plan.faces.length?.65:active==='sensing'?4.5:1.9);}
 function transition(dt){
  phaseTime=(performance.now()-phaseStarted)/1000;const u=THREE.MathUtils.clamp(phaseTime/phaseLength,0,1),e=ease(u);
- if(phase==='closing'){
+ if(phase==='pcb-release'){pcbLocal=THREE.MathUtils.lerp(1,.24/.71,e);if(u===1)enter('part',4.5);
+ }else if(phase==='pcb-folding'){pcbLocal=THREE.MathUtils.lerp(pcbFrom,.24/.71,e);if(u===1)enter('closing',.70);
+ }else if(phase==='closing'){
   const horizontal=ease(u/.42),partReturn=ease((u-.42)/.34),faceReturn=ease((u-.76)/.24);
   for(const [key,o] of Object.entries(parts)){
    const from=closePositions[key]||basePosition(key),base=basePosition(key),isFace=plan?.faces.includes(key);
-   if(isFace)o.position.lerpVectors(from,base,faceReturn);
+   if(isFace){if(active!=='sensing')o.position.lerpVectors(from,base,faceReturn);}
    else{o.position.x=THREE.MathUtils.lerp(from.x,base.x,horizontal);o.position.y=THREE.MathUtils.lerp(from.y,base.y,horizontal);o.position.z=THREE.MathUtils.lerp(from.z,base.z,partReturn);}
   }
   for(const item of closePairs)item.child.position.x=item.x*(1-horizontal);flat=fromFlat;openness=closeOpen*(1-e);
-  if(u===1){resetOffsets();fromFlat=flat;enter('curving',.22);}
+  if(u===1){if(active==='sensing'){pcbFrom=pcbLocal;openness=.35;enter('pcb-seated',3.2);}else{resetOffsets();fromFlat=flat;enter('curving',.9);}}
+ }else if(phase==='pcb-seated'){pcbLocal=THREE.MathUtils.lerp(pcbFrom,1,e);if(u===1)enter('cover-seating',.6);
+ }else if(phase==='cover-seating'){for(const key of plan.faces)parts[key].position.lerpVectors(closePositions[key],basePosition(key),e);openness=.35*(1-e);if(u===1){resetOffsets();fromFlat=flat;enter('curving',.9);}
  }else if(phase==='curving'){
   flat=fromFlat*(1-e);
-  if(u===1){flat=0;active=null;enter('hold',.12);}
+  if(u===1){flat=0;pcbLocal=1;active=null;enter('hold',.12);}
  }else if(phase==='hold'&&u===1){
   if(glowAfter){glowAfter=false;active='light';text(active);view(2.28);enter('illuminating',2.4);}else next();
  }else if(phase==='flattening'){
@@ -85,9 +90,9 @@ function transition(dt){
   if(u===1){flat=1;open();}
  }else if(phase==='face'){
   for(const key of plan.faces)parts[key].position.lerpVectors(basePosition(key),plan.positions[key],e);openness=.35*e;
-  if(u===1)enter('part',1.9);
+  if(u===1)enter(active==='sensing'?'pcb-release':'part',active==='sensing'?2.4:1.9);
  }else if(phase==='part'){
-  const z=ease(Math.min(1,u/.55)),out=ease(Math.max(0,(u-.48)/.52)),base=basePosition(active);parts[active].position.z=THREE.MathUtils.lerp(base.z,plan.positions[active].z,z);parts[active].position.y=plan.positions[active].y*out;for(const item of plan.radials)item.child.position.x=item.x*out;openness=.35+.65*e;
+  if(active==='sensing')pcbLocal=(.24/.71)*(1-ease((u-.55)/.45));const z=ease(Math.min(1,u/.55)),out=ease(Math.max(0,(u-.48)/.52)),base=basePosition(active);parts[active].position.z=THREE.MathUtils.lerp(base.z,plan.positions[active].z,z);parts[active].position.y=plan.positions[active].y*out;for(const item of plan.radials)item.child.position.x=item.x*out;openness=.35+.65*e;
   if(u===1){openness=1;stage.dataset.clearance=plan.gap.toFixed(3);enter('open',1);}
  }else if(phase==='open'&&active==='light'&&phaseTime>3.8){pending='@light';close();
  }else if(phase==='illuminating'){
@@ -95,6 +100,16 @@ function transition(dt){
   if(u===1){glow=1;if(pending&&pending!=='@light'){glow=0;active=null;next();}else{pending=null;enter('lit',1);}}
  }
  stage.dataset.flatten=flat.toFixed(3);stage.dataset.activePart=active||'';stage.dataset.glow=glow.toFixed(3);stage.dataset.assembled=String(flat<.001&&openness<.001);
+}
+function hingeY(p,start,angle,r=.00125){const q=p.clone(),d=q.y-start;if(d<=0||Math.abs(angle)<1e-8)return q;const a=Math.min(d/r,Math.abs(angle))*Math.sign(angle),tail=Math.max(0,d-r*Math.abs(angle)),radius=r*Math.sign(angle),effective=radius-(q.z+.00045);q.y=start+effective*Math.sin(a)+tail*Math.cos(a);q.z=-.00045+radius-effective*Math.cos(a)+tail*Math.sin(a);return q;}
+function boardPoint(p,up,tip,ear,curve){let q=p.clone();if(p.y>.0139&&[-.03361,-.00001,.03359].some(c=>Math.abs(p.x-c)<.00982)){q=hingeY(q,.0180,-Math.PI/2*tip,.0008);q=hingeY(q,.0139,Math.PI/2*up,.0010);}if(Math.abs(p.x)>=.10495&&Math.abs(p.x)<=.11505&&p.y<-.0095596884){q.y=-q.y;q=hingeY(q,.0200,Math.PI/2*ear,.0018);q=hingeY(q,.0095596884,Math.PI/2*ear,.0018);q.y=-q.y;}if(curve>1e-8){const r=.115/curve,a=q.x/r,x=(r-q.z)*Math.sin(a);q.z=r-(r-q.z)*Math.cos(a);q.x=x;}return q;}
+function updatePCB(){
+ const signature=flat.toFixed(5)+':'+pcbLocal.toFixed(5);if(signature===lastPCB)return;lastPCB=signature;
+ const a=pcbLocal*.71,up=ease(a/.24),tip=ease((a-.24)/.22),ear=ease((a-.46)/.25),curve=.82*(1-flat),weights={};
+ if(pcbLocal>.999){weights.Flatten=flat;}else if(a<.24){weights.FlatPCB=1-up;weights.TipsUp=up;}else if(a<.46){weights.TipsUp=1-tip;weights.EarOpen=tip;}else{weights.EarOpen=1-ear;weights.Flatten=ear;}
+ parts.sensing.traverse(o=>{if(!o.isMesh||!o.morphTargetInfluences?.length)return;o.morphTargetInfluences.fill(0);for(const [name,value] of Object.entries(weights)){const index=o.morphTargetDictionary[name];if(index!==undefined)o.morphTargetInfluences[index]=value;}});
+ for(const rig of rigidMounts){const p=new THREE.Vector3(...rig.userData.mount_m),q=boardPoint(p,up,tip,ear,curve),dx=boardPoint(p.clone().add(new THREE.Vector3(.00001,0,0)),up,tip,ear,curve).sub(q).normalize(),dy=boardPoint(p.clone().add(new THREE.Vector3(0,.00001,0)),up,tip,ear,curve).sub(q).normalize(),normal=dx.clone().cross(dy).normalize();dy.copy(normal).cross(dx).normalize();rig.position.copy(q);rig.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(dx,dy,normal));}
+ stage.dataset.pcbLocal=pcbLocal.toFixed(3);stage.dataset.substrates='1';stage.dataset.rigidMounts=String(rigidMounts.length);stage.dataset.mountPose=JSON.stringify(rigidMounts.slice(0,3).map(r=>[...r.position.toArray(),...r.quaternion.toArray()]));
 }
 try{
  const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'default'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;stage.prepend(renderer.domElement);
@@ -112,11 +127,8 @@ try{
  function flatPoint(g,i){const p=g.attributes.position,m=g.morphAttributes.position?.[0];const v=new THREE.Vector3(p.getX(i),p.getY(i),p.getZ(i));if(m){const f=new THREE.Vector3(m.getX(i),m.getY(i),m.getZ(i));if(g.morphTargetsRelative)v.add(f);else v.copy(f);}return v;}
  function boundsOf(object){const box=new THREE.Box3();object.traverse(o=>{if(o.isMesh)for(let i=0;i<o.geometry.attributes.position.count;i++)box.expandByPoint(flatPoint(o.geometry,i));});return box;}
  function correctMorphNormals(g){
-  if(!g.morphAttributes.position?.length)return;g.computeVertexNormals();const count=g.attributes.position.count,coordinates=new Float32Array(count*3);
-  for(let i=0;i<count;i++){const p=flatPoint(g,i);coordinates[i*3]=p.x;coordinates[i*3+1]=p.y;coordinates[i*3+2]=p.z;}
-  const flatGeometry=new THREE.BufferGeometry();flatGeometry.setAttribute('position',new THREE.BufferAttribute(coordinates,3));if(g.index)flatGeometry.setIndex(g.index.clone());flatGeometry.computeVertexNormals();const normal=flatGeometry.attributes.normal,base=g.attributes.normal,delta=new Float32Array(count*3);
-  for(let i=0;i<count;i++){delta[i*3]=normal.getX(i)-(g.morphTargetsRelative?base.getX(i):0);delta[i*3+1]=normal.getY(i)-(g.morphTargetsRelative?base.getY(i):0);delta[i*3+2]=normal.getZ(i)-(g.morphTargetsRelative?base.getZ(i):0);}
-  g.morphAttributes.normal=[new THREE.BufferAttribute(delta,3)];flatGeometry.dispose();
+  if(!g.morphAttributes.position?.length)return;g.computeVertexNormals();const base=g.attributes.normal,p=g.attributes.position,count=p.count;
+  g.morphAttributes.normal=g.morphAttributes.position.map(target=>{const coords=new Float32Array(count*3);for(let i=0;i<count;i++){coords[i*3]=target.getX(i)+(g.morphTargetsRelative?p.getX(i):0);coords[i*3+1]=target.getY(i)+(g.morphTargetsRelative?p.getY(i):0);coords[i*3+2]=target.getZ(i)+(g.morphTargetsRelative?p.getZ(i):0);}const temp=new THREE.BufferGeometry();temp.setAttribute('position',new THREE.BufferAttribute(coords,3));if(g.index)temp.setIndex(g.index.clone());temp.computeVertexNormals();const normal=temp.attributes.normal,delta=new Float32Array(count*3);for(let i=0;i<count;i++){delta[i*3]=normal.getX(i)-(g.morphTargetsRelative?base.getX(i):0);delta[i*3+1]=normal.getY(i)-(g.morphTargetsRelative?base.getY(i):0);delta[i*3+2]=normal.getZ(i)-(g.morphTargetsRelative?base.getZ(i):0);}temp.dispose();return new THREE.BufferAttribute(delta,3);});
  }
  function splitPair(original){
   const pair=new THREE.Group();pair.name=original.name;const left=new THREE.Group(),right=new THREE.Group();left.userData.side=-1;right.userData.side=1;pair.add(left,right);pair.userData.pairs=[left,right];
@@ -127,7 +139,7 @@ try{
   });
   original.parent.add(pair);original.parent.remove(original);pairBoxes.set(left,boundsOf(left));pairBoxes.set(right,boundsOf(right));return pair;
  }
- new GLTFLoader().load('./assets/mask.glb?v=6',g=>{
+ new GLTFLoader().load('./assets/mask.glb?v=7',g=>{
   model=g.scene;model.position.y=-.008;scene.add(model);
   const colors={shell:0x272b2d,frame:0x191d20,padding:0x22282a,comfort:0x282e30,light:0xb5ad9b,sensing:0x22292a,fit:0x24282b,audio:0x51300f,power:0x343b3e};
   for(const key of Object.keys(colors)){
@@ -137,11 +149,15 @@ try{
   }
   const cloth=document.createElement('canvas');cloth.width=1024;cloth.height=512;const ctx=cloth.getContext('2d');ctx.fillStyle='#272b2d';ctx.fillRect(0,0,1024,512);const texture=new THREE.CanvasTexture(cloth);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
   parts.shell.traverse(o=>{if(!o.isMesh)return;const uv=new Float32Array(o.geometry.attributes.position.count*2);for(let i=0;i<uv.length/2;i++){const p=flatPoint(o.geometry,i);uv[i*2]=.5-p.x/.275;uv[i*2+1]=.5+p.y/.12;}o.geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));o.material.map=texture;o.material.color.set(0xffffff);o.material.polygonOffset=true;o.material.polygonOffsetFactor=-1;o.material.polygonOffsetUnits=-1;o.material.needsUpdate=true;});
-  const logo=new Image();logo.onload=()=>{ctx.drawImage(logo,395,160,234,132);texture.needsUpdate=true;};logo.src='./assets/wordmark.svg?v=6';
-  const foam=document.createElement('canvas');foam.width=512;foam.height=256;const fctx=foam.getContext('2d'),image=fctx.createImageData(512,256);let seed=912345;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
-  for(let y=0;y<256;y++)for(let x=0;x<512;x++){const v=Math.round(90+55*Math.sin(x*Math.PI/6)+(rand()-.5)*65),i=(y*512+x)*4;image.data[i]=image.data[i+1]=image.data[i+2]=v;image.data[i+3]=255;}fctx.putImageData(image,0,0);for(let i=0;i<6500;i++){fctx.fillStyle='#111';fctx.beginPath();fctx.ellipse(rand()*512,rand()*256,.5+rand(),.7+rand(),0,0,Math.PI*2);fctx.fill();}const bump=new THREE.CanvasTexture(foam);bump.anisotropy=8;
-  parts.comfort.traverse(o=>{if(!o.isMesh)return;const uv=new Float32Array(o.geometry.attributes.position.count*2);for(let i=0;i<uv.length/2;i++){const p=flatPoint(o.geometry,i);uv[i*2]=.5+p.x/.15;uv[i*2+1]=.5+p.y/.07;}o.geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));o.material.bumpMap=bump;o.material.bumpScale=.00055;o.material.needsUpdate=true;});
-  model.traverse(o=>{if(o.isMesh)meshes.push(o);});
+  const logo=new Image();logo.onload=()=>{ctx.drawImage(logo,412,168,200,112);texture.needsUpdate=true;};logo.src='./assets/wordmark.svg?v=7';
+  parts.comfort.traverse(o=>{if(!o.isMesh)return;const rest=new Float32Array(o.geometry.attributes.position.count*3);for(let i=0;i<rest.length/3;i++){const p=flatPoint(o.geometry,i);rest[i*3]=p.x;rest[i*3+1]=p.y;rest[i*3+2]=p.z;}o.geometry.setAttribute('restSurface',new THREE.BufferAttribute(rest,3));o.material.roughness=.96;o.material.onBeforeCompile=shader=>{
+   shader.vertexShader='attribute vec3 restSurface; varying vec3 vFoamRest;\n'+shader.vertexShader;
+   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvFoamRest=restSurface;');
+   shader.fragmentShader='varying vec3 vFoamRest; float foamHash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);} float foamNoise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(mix(foamHash(i),foamHash(i+vec3(1,0,0)),f.x),mix(foamHash(i+vec3(0,1,0)),foamHash(i+vec3(1,1,0)),f.x),f.y),mix(mix(foamHash(i+vec3(0,0,1)),foamHash(i+vec3(1,0,1)),f.x),mix(foamHash(i+vec3(0,1,1)),foamHash(i+vec3(1,1,1)),f.x),f.y),f.z); }\n'+shader.fragmentShader;
+   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\nfloat foamFootprint=max(length(dFdx(vFoamRest)),length(dFdy(vFoamRest)))*2600.0;float foamDetail=1.0-smoothstep(0.35,1.1,foamFootprint);float foamGrain=mix(0.5,foamNoise(vFoamRest*2600.0),foamDetail);diffuseColor.rgb*=0.94+0.12*foamGrain;');
+   shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_maps>','#include <normal_fragment_maps>\nfloat fh=foamGrain*0.000035;vec3 fq0=dFdx(-vViewPosition),fq1=dFdy(-vViewPosition),fr1=cross(fq1,normal),fr2=cross(normal,fq0);float fd=dot(fq0,fr1);normal=normalize(abs(fd)*normal-sign(fd)*(dFdx(fh)*fr1+dFdy(fh)*fr2));');
+  };o.material.customProgramCacheKey=()=> 'attached-foam-7';o.material.needsUpdate=true;});
+  model.traverse(o=>{if(o.isMesh)meshes.push(o);if(o.userData.rigid_smt&&Array.isArray(o.userData.mount_m))rigidMounts.push(o);});
   ready=true;stage.classList.add('model-loaded');status.textContent='';stage.dataset.morphs=String(meshes.filter(o=>o.morphTargetInfluences?.length).length);stage.dataset.assembled='true';if(copy[location.hash.slice(1)])request(location.hash.slice(1));else if(pending)next();
  },undefined,()=>{status.textContent='Use the buttons below to explore each feature';});
  new IntersectionObserver(entries=>{onScreen=entries[0].isIntersecting;}).observe(stage);let previous=performance.now();
@@ -150,7 +166,7 @@ try{
   if(model&&ready){
    transition(dt);if(!drag&&!reduced){if(now-lastInput>5000)yawGoal+=dt*(active?.017:.045);else if(Math.abs(inertia)>.0001){yawGoal+=inertia;inertia*=Math.exp(-dt*10);}}
    const blend=reduced?1:1-Math.exp(-dt*5);yaw=THREE.MathUtils.lerp(yaw,yawGoal,blend);pitch=THREE.MathUtils.lerp(pitch,pitchGoal,blend);model.rotation.set(pitch,yaw,0);
-   for(const mesh of meshes)if(mesh.morphTargetInfluences?.length)mesh.morphTargetInfluences[0]=flat;
+   for(const mesh of meshes)if(mesh.morphTargetInfluences?.length&&!mesh.morphTargetDictionary.FlatPCB)mesh.morphTargetInfluences[0]=flat;updatePCB();
    for(const [key,o] of Object.entries(parts)){
     if(internal.includes(key))o.visible=active===key&&!['curving','hold','flattening','charging','illuminating','lit'].includes(phase);
     if(key==='frame')o.visible=flat>.95&&active!==null;
