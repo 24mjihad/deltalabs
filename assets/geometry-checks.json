@@ -70,6 +70,7 @@
   "bytes": 21271800,
   "canonical_substrates": 1,
   "rigid_surface_mounts": 180,
+  "package_transform": "mesh-local package under one mount rig; parent inverse cleared",
   "fold_order": [
     "tabs upright",
     "tips fold down",

@@ -17,15 +17,15 @@ if(canvas){
   else if(random()<.35)stage.moves.push({time:stage.start+duration*(.3+random()*.5),amp:3+random()*4,duration:.14});
   stages.push(stage);
  }
- append('N2',18.5);append('Awake',2.7);append('N1',10.8);append('N2',23.6);
+ append('N1',11.8);append('N2',26.5);append('N3',29.4);append('N2',16.8);append('REM',23.5);append('Awake',2.4);
  function extend(until){
   while(end<until){const previous=stages.at(-1).name,r=random();let name;
-   if(previous==='N1')name=r<.82?'N2':'Awake';
-   else if(previous==='N2')name=r<.42?'N3':r<.68?'REM':r<.85?'Awake':'N1';
-   else if(previous==='N3')name=r<.92?'N2':'Awake';
-   else if(previous==='REM')name=r<.45?'Awake':r<.8?'N2':'N1';
-   else name=r<.65?'N1':'N2';
-   const ranges={N1:[9,18],N2:[17,29],N3:[16,28],REM:[13,24],Awake:[1.8,3.7]},[a,b]=ranges[name];append(name,a+random()*(b-a));
+   if(previous==='N1')name='N2';
+   else if(previous==='N2')name=r<.36?'N3':r<.70?'REM':r<.9?'N2':'Awake';
+   else if(previous==='N3')name='N2';
+   else if(previous==='REM')name=r<.25?'Awake':'N2';
+   else name='N1';
+   const ranges={N1:[10,15],N2:[18,34],N3:[22,32],REM:[19,30],Awake:[1.5,2.8]},[a,b]=ranges[name];append(name,a+random()*(b-a));
   }
  }
  const noise=new Float64Array(6),phase=new Float64Array(2),drift=new Float64Array(2);let breathPhase=0,generated=0,genStage=0;
@@ -92,6 +92,6 @@ if(canvas){
   ctx.fillStyle='#ffffff70';ctx.font='7px Manrope,Arial';ctx.textAlign='center';ctx.fillText('CURRENT STAGE',x(focus),height-8);
   ctx.restore();
  }
- function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-previous)/1000,.1);if(now-previous<33)return;previous=now;if(document.hidden||!visible)return;if(!reduced)clock+=dt*.8;draw();}
+ function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-previous)/1000,.1);if(now-previous<33)return;previous=now;if(document.hidden||!visible)return;if(!reduced)clock+=dt*1.25;draw();}
  draw();requestAnimationFrame(tick);
 }

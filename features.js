@@ -3,12 +3,12 @@ import {GLTFLoader} from './assets/vendor/GLTFLoader.js';
 const stage=document.querySelector('#model-stage'),status=stage.querySelector('.model-status'),description=document.querySelector('.feature-description');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const copy={
- sensing:{kicker:'BRAINWAVES & EYE MOVEMENTS',title:'Track your sleep stages',text:'EEG and EOG electrodes, breathing, blood oxygen and movement — aiming for greater accuracy than wristbands',anchor:'sleep-pressure'},
+ sensing:{kicker:'BRAINWAVES & EYE MOVEMENTS',title:'Track your sleep stages',text:'Wrist trackers infer stages from pulse and motion. EEG and EOG give our prototype direct brain and eye signals to work with',anchor:'sleep-pressure'},
  light:{kicker:'SUNRISE LIGHT & SMART WAKE',title:'Wake up less drowsy',text:'Sunrise LEDs and a smart wake window for nights and naps',anchor:'morning-light'},
  audio:{kicker:'BUILT-IN STEREO SPEAKERS',title:'Fall asleep faster',text:'Sound pulses timed to your sleep stage — designed to increase deep sleep intensity and reduce time spent falling asleep',anchor:'sleep-pressure'},
- comfort:{kicker:'SOFT / REMOVABLE / WASHABLE',title:'Make yourself comfortable',text:'Soft grey-black foam and a removable, washable face cushion',anchor:'daily-life'},
- fit:{kicker:'ADJUSTABLE MAGNETIC STRAP',title:'A comfortable fit',text:'A flexible strap that adjusts to your head and spreads pressure evenly',anchor:'daily-life'},
- power:{kicker:'WIRELESS CHARGING',title:'Fold it down and recharge',text:'Set the folded mask on its charging pad, ready for the next night',anchor:'daily-life'}
+ comfort:{kicker:'SOFT / REMOVABLE / WASHABLE',title:'Breathable face cushion',text:'Soft grey-black foam and a removable, washable face cushion',anchor:'daily-life'},
+ fit:{kicker:'ADJUSTABLE MAGNETIC STRAP',title:'Comfortable magnetic fit',text:'A flexible strap that adjusts to your head and spreads pressure evenly',anchor:'daily-life'},
+ power:{kicker:'WIRELESS CHARGING',title:'High-speed wireless charging',text:'Set the folded mask on its charging pad, ready for the next night',anchor:'daily-life'}
 };
 const buttons=[...document.querySelectorAll('[data-part]')],internal=['sensing','audio','power','fit'];
 let model,ready=false,parts={},flatBoxes={},meshes=[],lightMaterials=[],flat=0,active=null,pending=null,phase='idle',phaseTime=0,phaseLength=1,fromFlat=0,closePositions={},closePairs=[],closeOpen=0,plan=null,openness=0,glowAfter=false,glow=0;const pairBoxes=new Map();
@@ -17,7 +17,7 @@ let yaw=.25,yawGoal=.25,pitch=0,pitchGoal=0,drag=false,px=0,py=0,inertia=0,lastI
 const ease=x=>{x=THREE.MathUtils.clamp(x,0,1);return x*x*(3-2*x);};
 const basePosition=key=>new THREE.Vector3(0,0,key==='light'?.0008:0);
 function text(key){const d=copy[key];document.querySelector('#part-kicker').textContent=d?d.kicker:'TRACK / SLEEP / WAKE';document.querySelector('#part-title').textContent=d?d.title:'One mask';document.querySelector('#part-copy').textContent=d?d.text:'Select a feature below';document.querySelector('#part-science').href=d?'sleep.html#'+d.anchor:'sleep.html';buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.part===key)));}
-function enter(name,length){phase=name;phaseTime=0;phaseStarted=performance.now();phaseLength=reduced?.001:length;stage.dataset.phase=name;status.textContent=name==='closing'?'Reassembling':name==='flattening'?'Opening the band':'';description.setAttribute('aria-busy',String(['closing','curving','hold','flattening'].includes(name)));}
+function enter(name,length){phase=name;phaseTime=0;phaseStarted=performance.now();phaseLength=reduced?.001:length;stage.dataset.phase=name;status.textContent=name==='flattening'?'Opening the band':'';description.setAttribute('aria-busy','false');}
 function view(angle){yawGoal+=Math.atan2(Math.sin(angle-yawGoal),Math.cos(angle-yawGoal));pitchGoal=0;inertia=0;lastInput=performance.now();}
 function resetOffsets(){for(const [key,o] of Object.entries(parts)){o.position.copy(basePosition(key));if(o.userData.pairs)for(const child of o.userData.pairs)child.position.x=0;}openness=0;}
 function close(){
@@ -32,13 +32,12 @@ function next(){
  active=null;fromFlat=flat;view(pending==='comfort'?2.20:.86);enter('flattening',1.6);
 }
 function request(key){
- if(key!==null&&!copy[key])return;pending=key;buttons.forEach(b=>b.dataset.pending=String(b.dataset.part===key));
+ if(key!==null&&!copy[key])return;pending=key;text(key);buttons.forEach(b=>b.dataset.pending=String(b.dataset.part===key));
  if(!ready)return;
  if(['pcb-folding','pcb-seated','cover-seating','closing','curving','hold'].includes(phase))return;
  if(['idle','charging','lit','illuminating'].includes(phase)&&flat<.001&&openness<.001){stage.classList.remove('show-charging');glow=0;active=null;next();}else close();
 }
 buttons.forEach(b=>b.addEventListener('click',()=>{history.replaceState(null,'','#'+b.dataset.part);request(b.dataset.part);}));
-document.querySelector('.reset-model').addEventListener('click',()=>{history.replaceState(null,'',location.pathname);request(null);} );
 window.addEventListener('hashchange',()=>request(copy[location.hash.slice(1)]?location.hash.slice(1):null));
 function boxUnion(keys){const box=new THREE.Box3();for(const key of keys)if(flatBoxes[key])box.union(flatBoxes[key]);return box;}
 function makePlan(key){
@@ -47,7 +46,7 @@ function makePlan(key){
  if(key==='comfort'){
   const core=boxUnion(['shell','light','frame']);positions.comfort.z=core.max.z+gap-selectedBox.min.z;positions.comfort.y=.055;
  }else{
-  faces=key==='sensing'?['shell','padding','light']:['shell','padding'];
+  faces=key==='sensing'?['shell','padding','light']:key==='light'?['shell','padding']:[];
   const core=boxUnion(structural.filter(n=>n!==key&&!faces.includes(n)));
   positions[key].z=core.min.z-gap-selectedBox.max.z;
   const faceBox=boxUnion(faces);const faceOffset=selectedBox.min.z+positions[key].z-gap-faceBox.max.z;
@@ -139,7 +138,7 @@ try{
   });
   original.parent.add(pair);original.parent.remove(original);pairBoxes.set(left,boundsOf(left));pairBoxes.set(right,boundsOf(right));return pair;
  }
- new GLTFLoader().load('./assets/mask.glb?v=7',g=>{
+ new GLTFLoader().load('./assets/mask.glb?v=8',g=>{
   model=g.scene;model.position.y=-.008;scene.add(model);
   const colors={shell:0x272b2d,frame:0x191d20,padding:0x22282a,comfort:0x282e30,light:0xb5ad9b,sensing:0x22292a,fit:0x24282b,audio:0x51300f,power:0x343b3e};
   for(const key of Object.keys(colors)){
@@ -147,7 +146,7 @@ try{
    object.traverse(o=>{if(!o.isMesh)return;correctMorphNormals(o.geometry);const old=o.material,name=old?.name||'',metal=/Metal|Copper/.test(name);let color=metal?(/Copper/.test(name)?0xa86f35:0xb9bfc3):/Flex PCB/.test(name)?0x8f591e:/Chip body/.test(name)?0x171a1d:colors[key];o.material=new THREE.MeshStandardMaterial({color,roughness:metal?.17:key==='comfort'?.95:.8,metalness:metal?.98:.02,side:THREE.FrontSide});o.castShadow=true;o.receiveShadow=true;if(metal){o.material.polygonOffset=true;o.material.polygonOffsetFactor=-1;o.material.polygonOffsetUnits=-1;}if(key==='light'){o.material.polygonOffset=true;o.material.polygonOffsetFactor=1;o.material.polygonOffsetUnits=1;lightMaterials.push(o.material);}if(key==='frame'){o.material.polygonOffset=true;o.material.polygonOffsetFactor=2;o.material.polygonOffsetUnits=2;}});
    if(['fit','audio','power'].includes(key))object=splitPair(object);parts[key]=object;flatBoxes[key]=boundsOf(object);object.position.copy(basePosition(key));
   }
-  const cloth=document.createElement('canvas');cloth.width=1024;cloth.height=512;const ctx=cloth.getContext('2d');ctx.fillStyle='#272b2d';ctx.fillRect(0,0,1024,512);const texture=new THREE.CanvasTexture(cloth);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
+  const cloth=document.createElement('canvas');cloth.width=1024;cloth.height=512;const ctx=cloth.getContext('2d');ctx.fillStyle='#272b2d';ctx.fillRect(0,0,1024,512);const grain=ctx.createImageData(1024,512);let grainSeed=0x915f36a;for(let i=0;i<grain.data.length;i+=4){grainSeed^=grainSeed<<13;grainSeed^=grainSeed>>>17;grainSeed^=grainSeed<<5;const n=((grainSeed>>>0)%17)-8;grain.data[i]=39+n;grain.data[i+1]=43+n;grain.data[i+2]=45+n;grain.data[i+3]=255;}ctx.putImageData(grain,0,0);const texture=new THREE.CanvasTexture(cloth);texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
   parts.shell.traverse(o=>{if(!o.isMesh)return;const uv=new Float32Array(o.geometry.attributes.position.count*2);for(let i=0;i<uv.length/2;i++){const p=flatPoint(o.geometry,i);uv[i*2]=.5-p.x/.275;uv[i*2+1]=.5+p.y/.12;}o.geometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));o.material.map=texture;o.material.color.set(0xffffff);o.material.polygonOffset=true;o.material.polygonOffsetFactor=-1;o.material.polygonOffsetUnits=-1;o.material.needsUpdate=true;});
   const logo=new Image();logo.onload=()=>{ctx.drawImage(logo,412,168,200,112);texture.needsUpdate=true;};logo.src='./assets/wordmark.svg?v=7';
   parts.comfort.traverse(o=>{if(!o.isMesh)return;const rest=new Float32Array(o.geometry.attributes.position.count*3);for(let i=0;i<rest.length/3;i++){const p=flatPoint(o.geometry,i);rest[i*3]=p.x;rest[i*3+1]=p.y;rest[i*3+2]=p.z;}o.geometry.setAttribute('restSurface',new THREE.BufferAttribute(rest,3));o.material.roughness=.96;o.material.onBeforeCompile=shader=>{
