@@ -1,31 +1,74 @@
 {
-  "opening": {
-    "duration_seconds": 26,
-    "fps": 24,
+  "hero": {
+    "seconds": 49.958333333333336,
     "shots": [
       {
-        "view": "stationary close front, slow orbiting light",
-        "duration_seconds": 10
+        "shot": "intro",
+        "frames": 96,
+        "fps": 24,
+        "seconds": 4.0
       },
       {
-        "view": "slow disassembly and reassembly, front camera arc",
-        "duration_seconds": 8
+        "shot": "deploy",
+        "frames": 288,
+        "fps": 24,
+        "seconds": 12.0
       },
       {
-        "view": "slow cushion separation and reassembly, rear camera arc",
-        "duration_seconds": 8
+        "shot": "fleet",
+        "frames": 192,
+        "fps": 24,
+        "seconds": 8.0
+      },
+      {
+        "shot": "detail",
+        "frames": 192,
+        "fps": 24,
+        "seconds": 8.0
+      },
+      {
+        "shot": "foam",
+        "frames": 143,
+        "fps": 24,
+        "seconds": 5.958333333333333
+      },
+      {
+        "shot": "close",
+        "frames": 192,
+        "fps": 24,
+        "seconds": 8.0
+      },
+      {
+        "shot": "magnet",
+        "frames": 96,
+        "fps": 24,
+        "seconds": 4.0
       }
     ],
-    "edit": "cuts between distinct camera angles at assembled poses, including the repeat boundary"
+    "style": "one-way flattening and deployment, staggered component lift and tumble, camera cuts, foam close-up, magnetic band closure and seated-magnet glints"
   },
-  "detail_film": {
-    "duration_seconds": 16,
-    "fps": 24,
-    "source": "two native Blender camera arcs, with layered product disassembly and reassembly"
+  "magnet_motion": "magnets remain in authored bores and follow the same band deformation and closure lap",
+  "fleet_motion": "whole electronic component rigs; conservative bounding-box separation prevents rig collisions",
+  "wake": {
+    "seconds": 10,
+    "layers_seated_at_seconds": 2.4,
+    "bend_complete_at_seconds": 3.8,
+    "light_starts_at_seconds": 4.2,
+    "light_ramp_seconds": 5.8
   },
   "interactive": {
-    "model": "actual CAD, baked curved pose",
-    "controls": "bottom feature buttons, drag rotation, icon pause, keyboard",
-    "separation": "layer axis for cover/sensing/light/cushion; radial split for paired speakers, batteries, and fit parts"
-  }
+    "flat_morph": "authored flattened pose",
+    "change_sequence": [
+      "return selected part in its cleared lane",
+      "reseat the cover",
+      "restore curvature",
+      "brief fully assembled beat",
+      "flatten",
+      "clear the cover",
+      "extract next part"
+    ],
+    "minimum_planned_clearance_m": 0.045,
+    "wake_light": "off until complete reassembly, then a 2.4-second ramp"
+  },
+  "controls": "no pause buttons; respects system reduced-motion preference"
 }

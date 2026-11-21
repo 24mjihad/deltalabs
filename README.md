@@ -33,13 +33,17 @@ Publish this folder as the repository root, push to `main`, and enable **Setting
 - `about.html`: the founders and development story.
 - `science.html`: the longer course guide, study sources, and photo credits.
 
-`styles.css` and `v4.css` hold shared layouts; `v5.css` supplies the current design. `features.js` uses self-hosted Three.js and `assets/mask.glb`; there is no runtime package CDN. Product footage pauses offscreen and resumes without resetting. The explorer supports drag, touch, arrow keys/Home, and an icon pause control. Feature buttons sit below the model; explanations have their own layout column. The camera framing remains fixed while rotating, and paired components separate outward from their own side. Reduced-motion visitors start paused.
+`styles.css`, `v4.css`, and `v5.css` hold shared layouts; `v6.css` supplies the current refinements. `features.js` uses self-hosted Three.js and `assets/mask.glb`. Feature changes return the selected component, reseat the cover, restore curvature, then flatten and clear a lane for the next component. Controls support drag, touch, arrow keys, and Home. Motion plays automatically when visible and honors system reduced-motion preferences. There are no pause buttons.
 
 ## Media
 
-The opening film uses the existing DeltaLabs Blender model. A dim close front view with an orbiting light leads into two slow camera arcs around the mask as its layers separate and reassemble. The camera keeps the mask horizontal instead of rolling with the viewing direction. Cuts occur between different angles, including at the repeat boundary. The same disassembly shots form the shorter product-detail film. Shot details are in `assets/animation-checks.json`.
+The opening film uses the supplied DeltaLabs Blender model: a dramatic moving light, slow flattening and deployment, a low PCB component shot, material close-ups, band closure, and seated magnet glints. Cuts join different views rather than reversing assembly immediately. A dimensioned magnet macro uses 2 mm discs and 2.25 mm bores. Porous corrugated foam and woven cloth are visualizations of intended materials. The charging scene shows the flattened mask with its bands folded across it on a large pad.
 
-The woven texture is a visualization, not a finalized textile. Films are silent, with static posters and icon-only motion controls. Original wordmark and shorthand retain white/teal brand colors. Background removal preserves the shorthand’s internal clip paths so its over/under crossings remain correct. The WebGL model avoids the fine checker texture that caused shimmer, separates frame and cover geometry, and omits duplicate hidden face padding. Six explicitly simulated traces illustrate brainwaves, eye movements, breathing, and movement; they are not recorded measurements.
+The wake film completes reassembly and bending before slowly raising the diffuser light. The interactive light feature likewise stays dark through reassembly, then ramps its light over 2.4 seconds. Timing and shot details are recorded in `assets/animation-checks.json`.
+
+`signals.js` generates six explicitly simulated brainwave, eye-movement, breathing, and movement traces with irregular noise, brief awakenings, K-complexes, and spindles. Stage bands and event labels travel with the data; excerpts use compressed demonstration timing and are not recordings. The chart and headline occupy separate layout regions.
+
+Original wordmark and shorthand retain their white/teal brand colors and internal over/under crossings. The WebGL model uses authored assembled-to-flat morphs, corrected morph normals, simplified rough materials, and separate frame and cover geometry.
 
 Nature, wildlife, and NASA photographs have attribution, source links, usage terms, and modifications documented in `science.html` and `assets/media-credits.json`. Photos illustrate the species and environments, not the experiments. Founder portraits come from the supplied pitch deck. Manrope is loaded from Google Fonts with local Arial/Helvetica fallbacks.
 

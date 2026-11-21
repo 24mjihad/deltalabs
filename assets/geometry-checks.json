@@ -1,0 +1,51 @@
+{
+  "parts": [
+    {
+      "part": "shell",
+      "vertices": 42447,
+      "flatten_morph": true
+    },
+    {
+      "part": "frame",
+      "vertices": 4952,
+      "flatten_morph": true
+    },
+    {
+      "part": "padding",
+      "vertices": 11998,
+      "flatten_morph": true
+    },
+    {
+      "part": "sensing",
+      "vertices": 53366,
+      "flatten_morph": true
+    },
+    {
+      "part": "light",
+      "vertices": 4943,
+      "flatten_morph": true
+    },
+    {
+      "part": "comfort",
+      "vertices": 6963,
+      "flatten_morph": true
+    },
+    {
+      "part": "fit",
+      "vertices": 14055,
+      "flatten_morph": true
+    },
+    {
+      "part": "audio",
+      "vertices": 794,
+      "flatten_morph": true
+    },
+    {
+      "part": "power",
+      "vertices": 24161,
+      "flatten_morph": true
+    }
+  ],
+  "bytes": 9292244,
+  "morph": "authored assembled-to-flat poses, matched vertex topology; flat positions propagated through reduction"
+}
