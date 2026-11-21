@@ -6,3 +6,5 @@
 /* A connected example of the actual prototype architecture */
 .diagram-wrap{width:100%;padding:1rem 0 0}.network-diagram{display:block;width:100%;height:auto;max-height:330px;overflow:visible}.network-edge{fill:none;stroke:#c7e0e5;stroke-width:1;opacity:.23}.network-edge.emphasized{stroke:#bcefff;stroke-width:1.5;opacity:.66}.network-node{fill:#0d1b20;stroke:#e9f9fb;stroke-width:1.7}.network-node.highlighted{fill:#bfeaf0;filter:drop-shadow(0 0 5px #bfeaf0)}.network-title{fill:#fff;font-size:10px;font-weight:600;letter-spacing:1px}.network-small{fill:#f7ffff;font-size:10px}.network-detail{fill:#b9cbd0;font-size:10px}.diagram-note{font-size:.65rem;color:#b9cbd0;margin:.3rem 0 1rem;text-align:center}
 @media(max-width:800px){.tracking{padding-block:4rem}.tracking .signal-plot{height:220px}.material-pair{grid-template-columns:1fr;gap:2rem}.material-pair h2{font-size:clamp(2rem,7vw,3rem)}.model-lab{padding-block:5rem}.network-card{min-height:0}.network-diagram{max-height:none}.app-gallery-controls{margin-top:1rem}}
+
+.mask-status{background:transparent}.mask-status img{width:100%;height:160px;object-fit:contain;filter:none;background:transparent}
