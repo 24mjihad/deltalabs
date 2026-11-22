@@ -29,7 +29,7 @@ function next(){
  if(pending==='@light'){pending=null;active='light';text(active);view(2.28);enter('illuminating',2.4);return;}
  if(pending===null){active=null;plan=null;flat=0;text(null);enter('idle',1);return;}
  if(pending==='power'){active='power';pending=null;flat=0;resetOffsets();text(active);stage.classList.add('show-charging');enter('charging',1);return;}
- active=null;fromFlat=flat;view(pending==='comfort'?2.20:.86);enter('flattening',1.6);
+ active=null;fromFlat=flat;view(pending==='comfort'?2.20:pending==='fit'?.86:.25);enter('flattening',1.6);
 }
 function request(key){
  if(key!==null&&!copy[key])return;pending=key;text(key);buttons.forEach(b=>b.dataset.pending=String(b.dataset.part===key));
@@ -172,7 +172,8 @@ try{
     if(key==='padding')o.visible=!!plan?.faces.includes('padding')&&Math.abs(o.position.z)>.012;
    }
    for(const material of lightMaterials){material.emissive.set(0xffad58);material.emissiveIntensity=glow*1.8;}sunrise.intensity=glow*.045;
-   const width=.28+.39*flat+Math.max(0,(plan?.width||.67)-.67)*openness,depth=.18*(1-flat)+.03*flat+(plan?.depth||0)*openness;
+   const visibleWidth=active==='fit'?.67:active?Math.max(.30,plan?.width||.30):.28+.39*flat;
+   const width=visibleWidth,depth=.18*(1-flat)+.03*flat+(plan?.depth||0)*openness;
    const mobile=camera.aspect<1.2,frameScale=mobile?(active?.6:.72):(active?.9:1);const target=Math.max(.38,(width/(2*Math.tan(THREE.MathUtils.degToRad(17))*camera.aspect)*1.15+depth*.35)*frameScale);distance=THREE.MathUtils.lerp(distance,target,blend);camera.position.set(0,.10,-distance);camera.lookAt(0,.015,.005);renderer.toneMappingExposure=THREE.MathUtils.lerp(renderer.toneMappingExposure,active?1.38:1.12,blend);
   }
   if(phase!=='charging')renderer.render(scene,camera);
