@@ -3,7 +3,7 @@ import {GLTFLoader} from './assets/vendor/GLTFLoader.js';
 const stage=document.querySelector('#model-stage'),status=stage.querySelector('.model-status'),description=document.querySelector('.feature-description');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const copy={
- sensing:{kicker:'BRAINWAVES & EYE MOVEMENTS',title:'Track your sleep stages',text:'Wrist trackers infer stages from pulse and motion. EEG and EOG give our prototype direct brain and eye signals to work with',anchor:'sleep-pressure'},
+ sensing:{kicker:'BRAINWAVES & EYE MOVEMENTS',title:'Track your sleep stages',text:'In one lab study, six wrist trackers recognized only 29–52% of awake moments. Our prototype uses brain and eye signals for sleep staging',anchor:'sleep-pressure'},
  light:{kicker:'SUNRISE LIGHT & SMART WAKE',title:'Wake up less drowsy',text:'Sunrise LEDs and a smart wake window for nights and naps',anchor:'morning-light'},
  audio:{kicker:'BUILT-IN STEREO SPEAKERS',title:'Fall asleep faster',text:'Sound pulses timed to your sleep stage — designed to increase deep sleep intensity and reduce time spent falling asleep',anchor:'sleep-pressure'},
  comfort:{kicker:'SOFT / REMOVABLE / WASHABLE',title:'Breathable face cushion',text:'Soft grey-black foam and a removable, washable face cushion',anchor:'daily-life'},
