@@ -3,11 +3,12 @@
    model's own stage estimate for each epoch, and a separate public head-worn
    accelerometer recording. Data comes from sleep-data.js (tools/build-sleep-data.py).
    After each short run of epochs the playhead skips ahead to another part of the hour.
-   Scrolling the page scrubs the playback forwards or backwards. */
+   Each epoch is read, the model's estimate appears, then the human scorer's label is
+   revealed next to it with a match or miss. */
 (()=>{
  const canvas=document.querySelector('#sleep-signals-canvas'),D=window.DELTA_SLEEP;
  if(!canvas||!D)return;
- const ctx=canvas.getContext('2d'),container=canvas.closest('.sleep-signals'),heading=document.querySelector('#current-sleep-stage'),meta=document.querySelector('#sleep-stage-meta');
+ const ctx=canvas.getContext('2d'),container=canvas.closest('.sleep-signals'),heading=document.querySelector('#current-sleep-stage'),$=id=>document.getElementById(id),verdict=container.querySelector('.signal-verdict');
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const bytes=s=>{const b=atob(s),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;};
  const X=new Int8Array(bytes(D.x).buffer),ACC=new Int16Array(bytes(D.acc).buffer);
@@ -22,23 +23,32 @@
  const clamp=x=>x<0?0:x>1?1:x,seg=(t,a,b)=>clamp((t-a)/(b-a)),ease=x=>1-Math.pow(1-x,3),mix=(a,b,t)=>a+(b-a)*t;
  const wrap=k=>(k%N+N)%N;
  const FONT=getComputedStyle(document.body).fontFamily||'Arial';
- const DUR=5200,SWEEP=.68,DECIDE=.82;            // ms per epoch; fractions of it spent drawing the signal and running the model
- let width=600,height=300,visible=true,k=0,t=reduced?1:0,previous=performance.now(),shown=-1,pending=0;
+ const DUR=3000,SWEEP=.46,DECIDE=.58,REVEAL=.70;  // ms per epoch; when the signal is fully read, when the model answers, when the scorer's label is shown
+ let width=600,height=300,visible=true,k=0,t=reduced?.999:0,previous=performance.now(),shown=-1;
+ {let agree=0;for(let i=0;i<HOUR;i++)if(D.hourTrue[i]===D.hourPred[i])agree++;const el=$('sv-tally');if(el)el.textContent=`MODEL AND SCORER AGREED ON ${agree} OF ${HOUR} EPOCHS IN THIS HOUR`;}
 
  function resize(){const r=canvas.getBoundingClientRect();if(!r.width)return;width=r.width;height=r.height;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
  function clock(i){const s=(D.meta.start+i)*30,h=Math.floor(s/3600),m=Math.floor(s%3600/60);return `${h}:${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
 
- function setHeading(e){
-  if(e===shown)return;shown=e;const q=PRED[e],st=STAGES[q],ok=q===TRUE[e];
-  heading.textContent=st.label;heading.dataset.stage=st.key;canvas.dataset.focusStage=st.key;canvas.dataset.epoch=String(PLAY[e]);
-  if(meta)meta.textContent=`MODEL ${Math.round(D.p[e][q]*100)}% SURE / ${ok?'HUMAN SCORER AGREES':'HUMAN SCORER SAID '+STAGES[TRUE[e]].code} / ${clock(PLAY[e])} INTO THE NIGHT`;
+ function setReadout(){
+  const phase=t<DECIDE?0:t<REVEAL?1:2,key=k*3+phase;if(key===shown)return;shown=key;
+  const q=PRED[k],st=STAGES[q],ok=q===TRUE[k];
+  if(phase){heading.textContent=st.label;heading.dataset.stage=st.key;}else{heading.textContent='READING 30 SECONDS';delete heading.dataset.stage;}
+  canvas.dataset.focusStage=st.key;canvas.dataset.epoch=String(PLAY[k]);
+  if(!verdict)return;
+  verdict.dataset.result=phase<2?'pending':ok?'match':'miss';
+  $('sv-est').textContent=phase?st.code:'…';$('sv-est').style.color=phase?st.ink:'';
+  $('sv-conf').textContent=phase?Math.round(D.p[k][q]*100)+'% SURE':'READING';
+  $('sv-true').textContent=phase===2?STAGES[TRUE[k]].code:'…';$('sv-true').style.color=phase===2?STAGES[TRUE[k]].ink:'';
+  $('sv-when').textContent=clock(PLAY[k])+' INTO THE NIGHT';
+  $('sv-match').textContent=phase<2?'':ok?'✓ MATCH':'✕ MISS';
  }
 
  function draw(){
   const small=width<430,gutter=small?52:74,right=width-6,plotW=right-gutter,prev=wrap(k-1);
   const hypTop=4,hypRow=small?8:9,lanesTop=hypTop+hypRow*2+16,probH=small?40:30,axisH=15,lanesBot=height-probH-axisH-8;
   const sweep=seg(t,0,SWEEP),run=ease(seg(t,SWEEP,DECIDE)),decided=t>=DECIDE,fade=FIRST.has(PLAY[k])?ease(seg(t,0,.1)):1;
-  setHeading(decided?k:prev);
+  setReadout();
   ctx.clearRect(0,0,width,height);ctx.textBaseline='middle';ctx.lineJoin='round';
   const label=(text,y,color='#ffffffbb')=>{ctx.font=`${small?7:8}px ${FONT}`;ctx.textAlign='right';ctx.fillStyle=color;ctx.fillText(text,gutter-9,y);};
 
@@ -83,7 +93,7 @@
   ctx.restore();
 
   /* what the model makes of it: probability for each stage, settling once the epoch is complete */
-  const pTop=height-probH,cols=small?3:5,rowsN=Math.ceil(5/cols),cellW=plotW/cols,cellH=probH/rowsN,now=D.p[k],before=D.p[prev],top=decided?PRED[k]:PRED[prev];
+  const pTop=height-probH,cols=small?3:5,rowsN=Math.ceil(5/cols),cellW=plotW/cols,cellH=probH/rowsN,now=D.p[k],before=D.p[prev],top=decided?PRED[k]:-1;
   label(t<SWEEP?'READING':decided?'ESTIMATE':'STAGING',pTop+probH/2,t>=SWEEP&&!decided?'#fff':'#ffffffbb');
   for(let i=0;i<5;i++){
    const st=STAGES[i],p=mix(before[i],now[i],run),x=gutter+(i%cols)*cellW,yy=pTop+Math.floor(i/cols)*cellH+cellH/2,isTop=i===top,bw=cellW-(small?58:66);
@@ -95,17 +105,14 @@
   ctx.globalAlpha=1;
  }
 
- function advance(d){t+=d;while(t>=1){t-=1;k=wrap(k+1);}while(t<0){t+=1;k=wrap(k-1);}}
- /* scrolling scrubs: one screen of scroll moves about an epoch and a half, either direction */
- let lastY=scrollY;
- addEventListener('scroll',()=>{const dy=scrollY-lastY;lastY=scrollY;if(visible&&!reduced)pending+=dy/innerHeight*1.5;},{passive:true});
+ function advance(d){t+=d;while(t>=1){t-=1;k=wrap(k+1);}}
  function tick(now){
   requestAnimationFrame(tick);const dt=Math.min(now-previous,100);if(dt<16)return;previous=now;if(document.hidden||!visible)return;
-  if(!reduced){const take=pending*Math.min(1,dt/140);pending-=take;advance(dt/DUR+take);}
+  if(!reduced)advance(dt/DUR);
   draw();
  }
  new ResizeObserver(resize).observe(canvas);resize();
- if('IntersectionObserver' in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(!visible)pending=0;}).observe(container);
+ if('IntersectionObserver' in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;}).observe(container);
  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
  requestAnimationFrame(tick);
 })();

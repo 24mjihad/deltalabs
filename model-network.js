@@ -2,7 +2,7 @@
    Adapted from cnn-visualization in github.com/24mjihad/deltalabs-sleep (CNNVISUALIZATION).
    Every dot is one channel of a layer, lit by its real mean activation for the epoch on
    screen; lines brighten where both ends are active. Data comes from sleep-data.js
-   (tools/build-sleep-data.py). Scrolling the page scrubs the playback. */
+   (tools/build-sleep-data.py). Output size and parameter count sit above each layer. */
 (()=>{
  const cv=document.querySelector('#flow-canvas'),D=window.DELTA_SLEEP;
  if(!cv||!D)return;
@@ -19,9 +19,9 @@
  const FONT=getComputedStyle(document.body).fontFamily||'Arial';
 
  const COLS=[
-  {n:16,name:'STEM',short:'STEM',sub:'16 × 125'},{n:32,name:'DS BLOCK 1',short:'DS1',sub:'32 × 63'},
-  {n:48,name:'DS BLOCK 2',short:'DS2',sub:'48 × 32'},{n:64,name:'DS BLOCK 3',short:'DS3',sub:'64 × 16'},
-  {n:70,name:'FEATURE',short:'FEAT',sub:'64 + 6'},{n:32,name:'LSTM',short:'LSTM',sub:'32'},{n:5,name:'STAGE',short:'OUT',sub:'5'}];
+  {n:16,name:'STEM',short:'STEM',sub:'16 × 125',par:'1,632'},{n:32,name:'DS BLOCK 1',short:'DS1',sub:'32 × 63',par:'1,280'},
+  {n:48,name:'DS BLOCK 2',short:'DS2',sub:'48 × 32',par:'3,520'},{n:64,name:'DS BLOCK 3',short:'DS3',sub:'64 × 16',par:'6,784'},
+  {n:70,name:'FEATURE',short:'FEAT',sub:'64 + 6',par:'–'},{n:32,name:'LSTM',short:'LSTM',sub:'32',par:'13,312'},{n:5,name:'STAGE',short:'OUT',sub:'5',par:'165'}];
  const OFF=[0,16,48,96];
 
  /* activation ramp: panel dark -> teal -> near white */
@@ -49,13 +49,13 @@
  function geom(w,h){
   const dpr=Math.min(devicePixelRatio||1,2);
   if(G&&G.w===w&&G.h===h&&G.dpr===dpr)return G;
-  const narrow=w<520,x0=w*(narrow?.24:.27),x1=w*(narrow?.84:.87),gap=(x1-x0)/6,top=44,bot=h-74,colH=bot-top,cy=(top+bot)/2;
+  const narrow=w<520,x0=w*(narrow?.24:.27),x1=w*(narrow?.84:.87),gap=(x1-x0)/6,top=58,bot=h-70,colH=bot-top,cy=(top+bot)/2;
   const cols=COLS.map((c,k)=>{
    const sp=k===6?Math.min(colH/5,74):Math.min(colH/(c.n+(k===4?3:0)),18),ys=[];
    for(let i=0;i<c.n;i++)ys.push(cy+(i-(c.n-1)/2)*sp+(k===4?(i>=64?1.5:-1.5)*sp:0));
    return {x:x0+k*gap,ys,sp,r:Math.max(1.2,Math.min(sp*.36,4.6))};
   });
-  const bh=Math.min(colH*.5,170),box={x:1,y:cy-bh/2,w:w*(narrow?.17:.2),h:bh};
+  const bh=Math.min(colH*.56,170),box={x:1,y:cy-bh/2,w:w*(narrow?.17:.2),h:bh};
   G={w,h,dpr,narrow,x0,gap,top,bot,cy,cols,box,src:{x:box.x+box.w,y:cy},lit:{}};
   G.dim=edges(G,null);
   return G;
@@ -103,7 +103,7 @@
   const w=cv.clientWidth,h=cv.clientHeight;if(w<120||h<120)return;
   const dpr=Math.min(devicePixelRatio||1,2);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);}
   const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);width=w;height=h;
-  const F=geom(w,h),cur=vals(k,false),prev=vals(k,true),small=F.gap<62,pk=wrap(k-1);
+  const F=geom(w,h),cur=vals(k,false),prev=vals(k,true),small=F.gap<62,tiny=F.gap<44,pk=wrap(k-1);
   const sweep=seg(t,0,.28),hold=1-.65*seg(t,0,.2),head=ease(seg(t,.80,.92));
   const p=-.8+6.3*seg(t,.28,.80)+.5*seg(t,.80,.88),waveX=F.x0+p*F.gap;
 
@@ -129,7 +129,7 @@
   g.restore();
   g.textBaseline='alphabetic';g.textAlign='left';
   g.font=`600 ${small?8:9}px ${FONT}`;g.fillStyle=sweep<1?INK:INK2;g.fillText(small?'INPUT':'RAW INPUT',B.x,14);
-  g.font=`${small?8:9}px ${FONT}`;g.fillStyle=INK3;g.fillText('2 × 3000',B.x,28);
+  g.font=`${small?8:9}px ${FONT}`;g.fillStyle=INK3;g.fillText(tiny?'SIZE':'OUTPUT SIZE',B.x,28);g.fillText(tiny?'PARAMS':'PARAMETERS',B.x,41);g.fillText('2 × 3000',B.x,B.y-(small?8:21));
   g.fillStyle=EEG;g.fillText('EEG',B.x+5,B.y+12);g.fillStyle=EOG;g.fillText(small?'EOG':'EYE',B.x+5,B.y+lane+12);
   g.fillStyle=INK3;g.fillText('0 s',B.x,B.y+B.h+13);g.textAlign='right';g.fillText('30 s',B.x+B.w,B.y+B.h+13);
   if(!small){g.textAlign='left';g.fillText('100 Hz / z-scored',B.x,B.y-8);}
@@ -146,7 +146,7 @@
     g.fill();g.globalAlpha=1;
    }
    g.textAlign='center';g.font=`600 ${small?8:9}px ${FONT}`;g.fillStyle=on?INK:INK2;g.fillText(small?COLS[c].short:COLS[c].name,C.x,14);
-   g.font=`${small?8:9}px ${FONT}`;g.fillStyle=INK3;g.fillText(small?String(COLS[c].n===70?'64+6':COLS[c].n):COLS[c].sub,C.x,28);
+   g.font=`${tiny?7:small?8:9}px ${FONT}`;g.fillStyle=INK2;g.fillText(tiny?String(COLS[c].n===70?'64+6':COLS[c].n):COLS[c].sub,C.x,28);g.fillStyle=INK3;g.fillText(COLS[c].par,C.x,41);
   }
   /* night context caption and the LSTM's carried state */
   const Fe=F.cols[4],L=F.cols[5],ly=L.ys[31]+L.r+15;
@@ -169,7 +169,7 @@
    g.textBaseline='alphabetic';
   }
   g.textAlign='center';g.font=`600 ${small?8:9}px ${FONT}`;g.fillStyle=head>0&&head<1?INK:INK2;g.fillText(small?COLS[6].short:COLS[6].name,O.x,14);
-  g.font=`${small?8:9}px ${FONT}`;g.fillStyle=INK3;g.fillText(COLS[6].sub,O.x,28);
+  g.font=`${tiny?7:small?8:9}px ${FONT}`;g.fillStyle=INK2;g.fillText(COLS[6].sub,O.x,28);g.fillStyle=INK3;g.fillText(COLS[6].par,O.x,41);
 
   /* the hour this epoch comes from: human scorer above, model below */
   const sx=small?44:58,sw=w-sx,cw=sw/HOUR,sy=h-30,rh=8;
@@ -183,17 +183,15 @@
   setResult(decided?k:pk);
  }
 
- const DUR=6500;let last=performance.now(),visible=true,pending=0,lastY=scrollY;
- function advance(d){t+=d;while(t>=1){t-=1;k=wrap(k+1);}while(t<0){t+=1;k=wrap(k-1);}}
- /* scrolling scrubs: one screen of scroll moves about an epoch and a half, either direction */
- addEventListener('scroll',()=>{const dy=scrollY-lastY;lastY=scrollY;if(visible&&!reduced)pending+=dy/innerHeight*1.5;},{passive:true});
+ const DUR=5000;let last=performance.now(),visible=true;
+ function advance(d){t+=d;while(t>=1){t-=1;k=wrap(k+1);}}
  function frame(now){
   requestAnimationFrame(frame);const dt=Math.min(100,now-last);if(dt<16)return;last=now;if(document.hidden||!visible)return;
-  if(!reduced){const take=pending*Math.min(1,dt/140);pending-=take;advance(dt/DUR+take);}
+  if(!reduced)advance(dt/DUR);
   draw();
  }
  new ResizeObserver(draw).observe(cv);
- if('IntersectionObserver' in window)new IntersectionObserver(en=>{visible=en[0].isIntersecting;if(!visible)pending=0;}).observe(card);
+ if('IntersectionObserver' in window)new IntersectionObserver(en=>{visible=en[0].isIntersecting;}).observe(card);
  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
  draw();requestAnimationFrame(frame);
 })();
